@@ -70,6 +70,17 @@ async function fetchPageContent(tabId) {
 }
 
 async function factCheckWithAI(text, contextText, url, apiKey) {
+  console.log('Starting fact check with AI...');
+  console.log('Text length:', text.length);
+  console.log('Context length:', contextText ? contextText.length : 0);
+  
+  // Limit context text length to avoid too large requests
+  const maxContextLength = 5000;
+  if (contextText && contextText.length > maxContextLength) {
+    console.log(`Context text too long (${contextText.length}), truncating to ${maxContextLength} characters`);
+    contextText = contextText.substring(0, maxContextLength) + "...";
+  }
+  
   const options = {
     method: 'POST',
     headers: {
@@ -78,7 +89,7 @@ async function factCheckWithAI(text, contextText, url, apiKey) {
       'authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'sonar',
+      model: 'sonar-reasoning-pro',
       messages: [
         { role: 'system', content: `You are a multilingual fact-checking assistant. Your primary tasks are:
 
@@ -113,16 +124,61 @@ If you cannot find enough reliable sources to fact-check the statement, say so e
     })
   };
 
-  const response = await fetch('https://api.perplexity.ai/chat/completions', options);
-  const result = await response.json();
+  console.log('Sending request to Perplexity API...');
+  
+  try {
+    // Set a timeout for the fetch request (30 seconds)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      ...options,
+      signal: controller.signal
+    });
+    
+    // Clear the timeout
+    clearTimeout(timeoutId);
+    
+    console.log('Received response from Perplexity API:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Perplexity API error response:', response.status, errorData);
+      
+      if (response.status === 401) {
+        throw new Error('Invalid API key. Please check your Perplexity API key and try again.');
+      } else if (response.status === 429) {
+        throw new Error('API rate limit exceeded or insufficient credits. Please try again later.');
+      } else if (response.status === 404) {
+        throw new Error('API endpoint not found. The Perplexity API may have changed.');
+      } else {
+        throw new Error(`Perplexity API error: ${response.status} ${response.statusText}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('Perplexity API response structure:', Object.keys(result));
 
-  console.log('Perplexity API response:', result);
+    if (result.error) {
+      console.error('API returned error object:', result.error);
+      throw new Error(`Perplexity API error: ${result.error.message || 'Unknown error'}`);
+    }
 
-  if (result.choices && result.choices.length > 0) {
-    const content = result.choices[0].message.content;
-    console.log('Perplexity API content:', content);
-    return content;
-  } else {
-    throw new Error('Invalid response from Perplexity API');
+    if (result.choices && result.choices.length > 0) {
+      console.log('Found choices in response, extracting content...');
+      const content = result.choices[0].message.content;
+      console.log('Content length:', content.length);
+      console.log('Content preview:', content.substring(0, 100) + '...');
+      return content;
+    } else {
+      console.error('Invalid response structure:', result);
+      throw new Error('Invalid response format from Perplexity API. The response structure may have changed.');
+    }
+  } catch (error) {
+    console.error('Error in Perplexity API request:', error);
+    if (error.name === 'AbortError') {
+      throw new Error('Request to Perplexity API timed out after 30 seconds. Please try again later.');
+    }
+    throw error;
   }
 }

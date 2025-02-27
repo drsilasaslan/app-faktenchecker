@@ -30,7 +30,7 @@ This Chrome extension allows Perplexity Pro users to fact-check any text on the 
 This extension uses the Perplexity API, which comes with a $5 monthly credit for Pro users. Here's what you need to know:
 
 - Your $5 credit refreshes each month with your Perplexity Pro subscription.
-- The extension uses the llama-3-8b-instruct model, one of the more cost-effective options.
+- The extension uses the `sonar-reasoning-pro` model, which provides high-quality fact-checking results.
 - The tool is designed to use tokens efficiently, allowing for plenty of monthly fact checks.
 
 Tips to maximize your credit:
@@ -38,9 +38,30 @@ Tips to maximize your credit:
 - For longer texts, select the most crucial parts for fact-checking.
 - Monitor your usage through your Perplexity account to understand your personal usage patterns.
 
+## Troubleshooting
+
+If you encounter issues with the extension, try these solutions:
+
+1. **API Key Issues**: 
+   - Ensure your Perplexity API key is entered correctly
+   - Use the "Test Key" button to verify your API key is valid
+   - Check that your Perplexity Pro subscription is active
+
+2. **No Response or Errors**:
+   - Check if you've exceeded your monthly API credits
+   - Try refreshing the page and attempting the fact check again
+   - Look for error messages in the fact check popup
+
+3. **Unexpected Results**:
+   - The quality of fact checking depends on the clarity of the selected text
+   - Very long selections may be truncated
+   - Some highly specialized or very recent topics may have limited sources
+
+If problems persist, please open an issue on GitHub with details about the error.
+
 ## Development
 
-This extension is built using JavaScript, HTML, and CSS. It uses the the Perplexity API for fact-checking.
+This extension is built using JavaScript, HTML, and CSS. It uses the Perplexity API for fact-checking.
 
 To set up the development environment:
 

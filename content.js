@@ -166,17 +166,39 @@
   }
 
   function showError(message) {
-    console.error('Showing error:', message);
     if (!factCheckBox) {
       factCheckBox = createFactCheckBox();
     }
+    
+    // Determine if this is an API key related error
+    const isApiKeyError = message.toLowerCase().includes('api key');
+    
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
-        <h2>Error</h2>
+        <h2>Fact Checker</h2>
         <button id="close-fact-check">×</button>
       </div>
-      <p>${message}</p>
+      <div class="error-container">
+        <h3 class="error-title">Error</h3>
+        <p class="error-message">${message}</p>
+        ${isApiKeyError ? `
+          <div class="error-help">
+            <p>To fix this issue:</p>
+            <ol>
+              <li>Click the Fact Checker extension icon in your toolbar</li>
+              <li>Enter your Perplexity API key</li>
+              <li>Click "Save" and try again</li>
+            </ol>
+            <p>Need an API key? <a href="https://www.perplexity.ai/settings/api" target="_blank">Get one from Perplexity</a></p>
+          </div>
+        ` : `
+          <div class="error-help">
+            <p>Please try again later or check the troubleshooting section in the extension documentation.</p>
+          </div>
+        `}
+      </div>
     `;
+    
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
   }
@@ -446,6 +468,36 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+    .error-container {
+      padding: 20px;
+      background-color: #fff8f8;
+      border-left: 4px solid #f44336;
+      margin-bottom: 15px;
+    }
+    .error-title {
+      font-size: 18px;
+      margin-top: 0;
+      color: #f44336;
+    }
+    .error-message {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    .error-help {
+      font-size: 14px;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .error-help a {
+      color: #2196F3;
+      text-decoration: none;
+    }
+    .error-help a:hover {
+      text-decoration: underline;
     }
   `;
   document.head.appendChild(style);

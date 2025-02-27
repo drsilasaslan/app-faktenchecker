@@ -14,9 +14,24 @@
   <div id="apiKeySection">
     <label for="apiKey">Enter your Perplexity API Key:</label>
     <input type="text" id="apiKey" placeholder="API Key">
-    <button id="saveApiKey">Save</button>
+    <div class="button-group">
+      <button id="saveApiKey">Save</button>
+      <button id="testApiKey">Test Key</button>
+    </div>
+    <div class="api-info">
+      <p>Using model: <strong>sonar-reasoning-pro</strong></p>
+      <p>Need an API key? <a href="https://www.perplexity.ai/settings/api" target="_blank">Get one from Perplexity</a></p>
+    </div>
   </div>
   <div id="status"></div>
+  <div class="instructions">
+    <h3>How to use:</h3>
+    <ol>
+      <li>Save your Perplexity API key above</li>
+      <li>Select text on any webpage</li>
+      <li>Right-click and select "Fact check with AI"</li>
+    </ol>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
