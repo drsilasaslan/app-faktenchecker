@@ -21,6 +21,9 @@
       case "factCheckError":
         showError(request.error);
         break;
+      case "retryFactCheck":
+        retryFactCheck(request.text, request.url);
+        break;
     }
   });
 
@@ -33,8 +36,9 @@
         <h2>Fact Checker</h2>
         <button id="close-fact-check">×</button>
       </div>
-      <p>Loading... This may take a few moments.</p>
+      <p>Fact-checking in progress... This may take up to 30 seconds.</p>
       <div class="loader"></div>
+      <p class="loading-tip">Tipp: Längere Texte können mehr Zeit in Anspruch nehmen.</p>
     `;
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
@@ -85,18 +89,34 @@
   function parseFactCheckResult(result) {
     console.log("Parsing raw result:", result);
 
+    // Fallback für den Fall, dass die Antwort nicht dem erwarteten Format entspricht
+    if (!result || typeof result !== 'string') {
+      console.error("Invalid result format, not a string:", result);
+      return {
+        truthPercentage: 'N/A',
+        factCheck: 'Die Antwort vom API konnte nicht verarbeitet werden.',
+        context: 'Bitte versuchen Sie es erneut mit einem kürzeren oder klareren Text.',
+        sources: []
+      };
+    }
+
     const sections = result.split('\n\n');
     const parsedResult = {
       truthPercentage: 'N/A',
-      factCheck: 'No fact check provided.',
-      context: 'No context provided.',
+      factCheck: 'Keine Faktenprüfung bereitgestellt.',
+      context: 'Kein Kontext bereitgestellt.',
       sources: []
     };
 
     let currentSection = '';
 
+    // Versuche, die Abschnitte zu identifizieren und zu extrahieren
     sections.forEach(section => {
-      if (section.startsWith('Sources:')) {
+      // Quellen-Abschnitt
+      if (section.toLowerCase().startsWith('sources:') || 
+          section.toLowerCase().startsWith('quellen:') || 
+          section.toLowerCase().startsWith('sources :') || 
+          section.toLowerCase().startsWith('quellen :')) {
         currentSection = 'sources';
         const sourceLines = section.split('\n').slice(1);
         console.log("Source lines:", sourceLines);
@@ -112,16 +132,33 @@
             }
           }
         });
-      } else if (section.startsWith('Truth:')) {
+      } 
+      // Wahrheits-Abschnitt
+      else if (section.toLowerCase().startsWith('truth:') || 
+               section.toLowerCase().startsWith('wahrheit:') || 
+               section.toLowerCase().startsWith('truth :') || 
+               section.toLowerCase().startsWith('wahrheit :')) {
         currentSection = 'truth';
         parsedResult.truthPercentage = section.split(':')[1].trim();
-      } else if (section.startsWith('Fact Check:')) {
+      } 
+      // Faktenprüfungs-Abschnitt
+      else if (section.toLowerCase().startsWith('fact check:') || 
+               section.toLowerCase().startsWith('faktencheck:') || 
+               section.toLowerCase().startsWith('fact check :') || 
+               section.toLowerCase().startsWith('faktencheck :')) {
         currentSection = 'factCheck';
         parsedResult.factCheck = section.split(':').slice(1).join(':').trim();
-      } else if (section.startsWith('Context:')) {
+      } 
+      // Kontext-Abschnitt
+      else if (section.toLowerCase().startsWith('context:') || 
+               section.toLowerCase().startsWith('kontext:') || 
+               section.toLowerCase().startsWith('context :') || 
+               section.toLowerCase().startsWith('kontext :')) {
         currentSection = 'context';
         parsedResult.context = section.split(':').slice(1).join(':').trim();
-      } else if (currentSection === 'factCheck') {
+      } 
+      // Fortsetzung des aktuellen Abschnitts
+      else if (currentSection === 'factCheck') {
         parsedResult.factCheck += ' ' + section.trim();
       } else if (currentSection === 'context') {
         parsedResult.context += ' ' + section.trim();
@@ -130,7 +167,29 @@
 
     console.log("Parsed result:", parsedResult);
 
-    // Replace source references with hyperlinks
+    // Wenn keine Quellen gefunden wurden, aber Text vorhanden ist, versuche eine alternative Parsing-Methode
+    if (parsedResult.sources.length === 0 && result.length > 100) {
+      console.log("No sources found with standard parsing, trying alternative method");
+      
+      // Suche nach URLs in eckigen Klammern
+      const urlMatches = result.match(/\[([^\]]+)\]\(([^)]+)\)/g);
+      if (urlMatches && urlMatches.length > 0) {
+        console.log("Found URL matches with alternative method:", urlMatches);
+        
+        urlMatches.forEach((match, index) => {
+          const urlParts = match.match(/\[([^\]]+)\]\(([^)]+)\)/);
+          if (urlParts && urlParts.length >= 3) {
+            parsedResult.sources.push({ 
+              index: index + 1, 
+              title: urlParts[1], 
+              url: urlParts[2] 
+            });
+          }
+        });
+      }
+    }
+
+    // Ersetze Quellenreferenzen durch Hyperlinks
     parsedResult.factCheck = replaceSourceReferences(parsedResult.factCheck, parsedResult.sources);
     parsedResult.context = replaceSourceReferences(parsedResult.context, parsedResult.sources);
 
@@ -166,12 +225,17 @@
   }
 
   function showError(message) {
+    console.error('Showing error:', message);
     if (!factCheckBox) {
       factCheckBox = createFactCheckBox();
     }
     
+    // Store the last selection for retry functionality
+    const lastSelection = window.getSelection().toString();
+    
     // Determine if this is an API key related error
     const isApiKeyError = message.toLowerCase().includes('api key');
+    const isTimeoutError = message.toLowerCase().includes('timed out');
     
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
@@ -179,21 +243,33 @@
         <button id="close-fact-check">×</button>
       </div>
       <div class="error-container">
-        <h3 class="error-title">Error</h3>
+        <h3 class="error-title">Fehler</h3>
         <p class="error-message">${message}</p>
         ${isApiKeyError ? `
           <div class="error-help">
-            <p>To fix this issue:</p>
+            <p>So beheben Sie dieses Problem:</p>
             <ol>
-              <li>Click the Fact Checker extension icon in your toolbar</li>
-              <li>Enter your Perplexity API key</li>
-              <li>Click "Save" and try again</li>
+              <li>Klicken Sie auf das Fact Checker-Symbol in Ihrer Symbolleiste</li>
+              <li>Geben Sie Ihren Perplexity API-Schlüssel ein</li>
+              <li>Klicken Sie auf "Speichern" und versuchen Sie es erneut</li>
             </ol>
-            <p>Need an API key? <a href="https://www.perplexity.ai/settings/api" target="_blank">Get one from Perplexity</a></p>
+            <p>Benötigen Sie einen API-Schlüssel? <a href="https://www.perplexity.ai/settings/api" target="_blank">Holen Sie sich einen von Perplexity</a></p>
+          </div>
+        ` : isTimeoutError ? `
+          <div class="error-help">
+            <p>Die Anfrage hat zu lange gedauert. Mögliche Gründe:</p>
+            <ul>
+              <li>Der ausgewählte Text ist zu lang</li>
+              <li>Die Perplexity-Server sind derzeit überlastet</li>
+              <li>Ihre Internetverbindung ist instabil</li>
+            </ul>
+            <p>Bitte versuchen Sie es mit einem kürzeren Text oder zu einem späteren Zeitpunkt erneut.</p>
+            <button id="retry-fact-check" class="retry-button">Erneut versuchen</button>
           </div>
         ` : `
           <div class="error-help">
-            <p>Please try again later or check the troubleshooting section in the extension documentation.</p>
+            <p>Bitte versuchen Sie es später erneut oder prüfen Sie den Abschnitt zur Fehlerbehebung in der Erweiterungsdokumentation.</p>
+            <button id="retry-fact-check" class="retry-button">Erneut versuchen</button>
           </div>
         `}
       </div>
@@ -201,6 +277,28 @@
     
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
+    
+    // Add retry button listener if present
+    const retryButton = document.getElementById('retry-fact-check');
+    if (retryButton && lastSelection) {
+      retryButton.addEventListener('click', function() {
+        chrome.runtime.sendMessage({
+          action: "retryFactCheck",
+          text: lastSelection,
+          url: window.location.href
+        });
+        showLoading();
+      });
+    }
+  }
+
+  function retryFactCheck(text, url) {
+    chrome.runtime.sendMessage({
+      action: "retryFactCheck",
+      text: text,
+      url: url
+    });
+    showLoading();
   }
 
   function addCloseButtonListener() {
@@ -498,6 +596,29 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
     }
     .error-help a:hover {
       text-decoration: underline;
+    }
+    .retry-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      display: block;
+    }
+    
+    .retry-button:hover {
+      background-color: #45a049;
+    }
+    
+    .loading-tip {
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+      margin-top: 10px;
+      text-align: center;
     }
   `;
   document.head.appendChild(style);

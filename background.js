@@ -27,6 +27,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Received message in background script:', request);
+  
+  if (request.action === "retryFactCheck" && request.text && sender.tab) {
+    console.log('Retrying fact check for:', request.text.substring(0, 50) + '...');
+    sendFactCheckMessage(sender.tab.id, request.text, request.url || sender.tab.url);
+  }
+});
+
 function sendFactCheckMessage(tabId, text, url) {
   chrome.tabs.sendMessage(tabId, { action: "showLoading" });
 
