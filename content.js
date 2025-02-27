@@ -220,7 +220,7 @@
         const match = line.match(/(\d+)\.\s+(.+)/);
         if (match) {
           const [, index, content] = match;
-          const urlMatch = content.match(/\[(.+?)\]\((.+?)\)/);
+          const urlMatch = content.match(/\[([^\]]+)\]\(([^)]+)\)/);
           if (urlMatch) {
             parsedResult.sources.push({ index, title: urlMatch[1], url: urlMatch[2] });
           } else {
@@ -528,22 +528,34 @@
   }
 
   function addCloseButtonListener() {
-    setTimeout(() => {
-      const closeButton = document.getElementById('close-fact-check');
-      if (closeButton) {
-        console.log('Close button found, adding event listener');
-        closeButton.addEventListener('click', () => {
-          console.log('Close button clicked');
-          if (factCheckBox) {
-            factCheckBox.style.display = 'none';
-          }
-          // Stoppe einen eventuell laufenden Timer
-          stopTimer();
-        });
-      } else {
-        console.log('Close button not found');
-      }
-    }, 100);  // 100ms delay
+    const closeButton = document.getElementById('close-fact-check');
+    if (closeButton) {
+      console.log('Close button found, adding event listener');
+      
+      // Entferne alle existierenden Event-Listener
+      const newCloseButton = closeButton.cloneNode(true);
+      closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+      
+      // Füge den neuen Event-Listener hinzu
+      newCloseButton.addEventListener('click', (e) => {
+        console.log('Close button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        if (factCheckBox) {
+          factCheckBox.style.display = 'none';
+        }
+        // Stoppe einen eventuell laufenden Timer
+        stopTimer();
+      });
+      
+      // Verhindere, dass der Schließen-Button das Drag & Drop auslöst
+      newCloseButton.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    } else {
+      console.log('Close button not found');
+    }
   }
 
   function addCopyButtonListener(result) {
