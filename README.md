@@ -11,19 +11,33 @@ This Chrome extension allows Perplexity Pro users to fact-check any text on the 
 - ✅ Receive a concise fact-check summary
 - 🌐 See the statement in a broader context
 - 📚 Access sources for further reading
+- 🔄 Retry functionality for failed requests
+- 🌍 Multilingual support - works in the language of your selected text
 
 ## Installation
 
 1. Download the extension from https://chromewebstore.google.com/detail/fact-checker/olfaipihfeomkedngnkkmappbojmlmml
 2. Click on the extension icon in your Chrome toolbar
 3. Enter your Perplexity API key in the extension settings
+4. Use the "Test API Key" button to verify your key is working correctly
 
 ## How to Use
 
 1. Select / Highlight any text on a webpage
 2. Right-click and select "Fact check with AI"
 3. View the results in a pop-up window
+4. If an error occurs, use the "Retry" button to attempt the fact check again
 
+## Current Functionality
+
+The extension currently:
+- Uses the `sonar-reasoning-pro` model for high-quality fact-checking
+- Provides sources with clickable links
+- Shows a truth percentage based on source reliability
+- Delivers a concise fact check summary
+- Offers contextual information about the selected text
+- Handles errors gracefully with retry options
+- Works in multiple languages, detecting and responding in the language of your selected text
 
 ## Credit Usage
 
@@ -49,12 +63,13 @@ If you encounter issues with the extension, try these solutions:
 
 2. **No Response or Errors**:
    - Check if you've exceeded your monthly API credits
-   - Try refreshing the page and attempting the fact check again
+   - Try using the "Retry" button if the fact check fails
+   - Refresh the page and attempt the fact check again
    - Look for error messages in the fact check popup
 
-3. **Unexpected Results**:
-   - The quality of fact checking depends on the clarity of the selected text
-   - Very long selections may be truncated
+3. **Missing Information**:
+   - If some sections (like truth percentage or context) are missing, try using the "Retry" button
+   - Very long selections may be truncated - try selecting a shorter piece of text
    - Some highly specialized or very recent topics may have limited sources
 
 If problems persist, please open an issue on GitHub with details about the error.
@@ -70,13 +85,17 @@ To set up the development environment:
 3. Enable "Developer mode"
 4. Click "Load unpacked" and select the cloned repository folder
 
-## Contributing
+## About the Developer
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+This extension was developed by Deniz Raslan. Connect with me on LinkedIn: https://www.linkedin.com/in/draslan/
 
 ## License
 
-This project is licensed under the MIT License 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Feedback
 
