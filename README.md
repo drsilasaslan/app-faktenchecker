@@ -13,6 +13,7 @@ This Chrome extension allows Perplexity Pro users to fact-check any text on the 
 - 📚 Access sources for further reading
 - 🔄 Retry functionality for failed requests
 - 🌍 Multilingual support - works in the language of your selected text
+- ⏱️ Timer display with cancel option for long-running requests
 
 ## Installation
 
@@ -27,6 +28,7 @@ This Chrome extension allows Perplexity Pro users to fact-check any text on the 
 2. Right-click and select "Fact check with AI"
 3. View the results in a pop-up window
 4. If an error occurs, use the "Retry" button to attempt the fact check again
+5. For long-running requests, you can monitor the remaining time and cancel if needed
 
 ## Current Functionality
 
@@ -38,6 +40,8 @@ The extension currently:
 - Offers contextual information about the selected text
 - Handles errors gracefully with retry options
 - Works in multiple languages, detecting and responding in the language of your selected text
+- Displays a countdown timer for long-running requests
+- Allows users to cancel fact-checking requests that take too long
 
 ## Credit Usage
 

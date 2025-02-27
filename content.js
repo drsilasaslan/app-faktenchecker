@@ -6,6 +6,10 @@
 
   let factCheckBox = null;
 
+  // Globale Variablen für den Timer
+  let timerInterval = null;
+  let remainingTime = 0;
+
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('Received message in content script:', request);
     switch (request.action) {
@@ -24,8 +28,77 @@
       case "retryFactCheck":
         retryFactCheck(request.text, request.url);
         break;
+      case "startTimer":
+        startTimer(request.maxTime);
+        break;
+      case "stopTimer":
+        stopTimer();
+        break;
     }
   });
+
+  // Funktion zum Starten des Timers
+  function startTimer(maxTime) {
+    // Stoppe einen eventuell laufenden Timer
+    stopTimer();
+    
+    // Setze die verbleibende Zeit
+    remainingTime = maxTime;
+    
+    // Aktualisiere die Loading-Anzeige
+    updateLoadingDisplay();
+    
+    // Starte den Timer-Intervall
+    timerInterval = setInterval(() => {
+      remainingTime--;
+      updateLoadingDisplay();
+      
+      // Wenn die Zeit abgelaufen ist, stoppe den Timer
+      if (remainingTime <= 0) {
+        stopTimer();
+      }
+    }, 1000);
+  }
+
+  // Funktion zum Stoppen des Timers
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  // Funktion zum Aktualisieren der Loading-Anzeige
+  function updateLoadingDisplay() {
+    if (!factCheckBox) return;
+    
+    // Formatiere die verbleibende Zeit
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    
+    // Aktualisiere den Timer-Text
+    const timerElement = factCheckBox.querySelector('.timer-text');
+    if (timerElement) {
+      timerElement.textContent = `Verbleibende Zeit: ${timeString}`;
+    }
+  }
+
+  // Funktion zum Abbrechen der Fact-Check-Anfrage
+  function abortFactCheck() {
+    console.log('Aborting fact check...');
+    
+    // Stoppe den Timer
+    stopTimer();
+    
+    // Sende eine Nachricht an das Background-Script
+    chrome.runtime.sendMessage({ action: "abortFactCheck" }, (response) => {
+      console.log('Abort response:', response);
+      
+      // Zeige eine Meldung an, dass die Anfrage abgebrochen wurde
+      showError('Die Fact-Check-Anfrage wurde abgebrochen.');
+    });
+  }
 
   function showLoading() {
     if (!factCheckBox) {
@@ -36,12 +109,20 @@
         <h2>Fact Checker</h2>
         <button id="close-fact-check">×</button>
       </div>
-      <p>Fact-checking in progress... This may take up to 30 seconds.</p>
+      <p>Fact-checking in progress... This may take up to 2 minutes.</p>
       <div class="loader"></div>
+      <p class="timer-text">Verbleibende Zeit: 2:00</p>
       <p class="loading-tip">Tipp: Längere Texte können mehr Zeit in Anspruch nehmen.</p>
+      <button id="abort-fact-check" class="abort-button">Abbrechen</button>
     `;
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
+    
+    // Füge einen Event-Listener für den Abbrechen-Button hinzu
+    const abortButton = factCheckBox.querySelector('#abort-fact-check');
+    if (abortButton) {
+      abortButton.addEventListener('click', abortFactCheck);
+    }
   }
 
   function showFactCheckResult(result) {
@@ -399,7 +480,7 @@
           </div>
         ` : isTimeoutError ? `
           <div class="error-help">
-            <p>Die Anfrage hat zu lange gedauert. Mögliche Gründe:</p>
+            <p>Die Anfrage hat zu lange gedauert (über 2 Minuten). Mögliche Gründe:</p>
             <ul>
               <li>Der ausgewählte Text ist zu lang</li>
               <li>Die Perplexity-Server sind derzeit überlastet</li>
@@ -435,6 +516,9 @@
   }
 
   function retryFactCheck(text, url) {
+    // Stoppe einen eventuell laufenden Timer
+    stopTimer();
+    
     chrome.runtime.sendMessage({
       action: "retryFactCheck",
       text: text,
@@ -453,6 +537,8 @@
           if (factCheckBox) {
             factCheckBox.style.display = 'none';
           }
+          // Stoppe einen eventuell laufenden Timer
+          stopTimer();
         });
       } else {
         console.log('Close button not found');
@@ -761,6 +847,28 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       font-style: italic;
       margin-top: 10px;
       text-align: center;
+    }
+    .timer-text {
+      font-size: 14px;
+      text-align: center;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    .abort-button {
+      background-color: #f44336;
+      color: white !important;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 10px auto;
+      display: block;
+      width: 120px;
+      text-align: center;
+    }
+    .abort-button:hover {
+      background-color: #d32f2f;
     }
   `;
   document.head.appendChild(style);

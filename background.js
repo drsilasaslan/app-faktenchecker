@@ -18,10 +18,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             console.error('Error injecting script: ' + chrome.runtime.lastError.message);
             return;
           }
-          sendFactCheckMessage(tab.id, info.selectionText, tab.url);
+          sendFactCheckMessage(tab.id, info.selectionText, tab.url, tab);
         });
       } else {
-        sendFactCheckMessage(tab.id, info.selectionText, tab.url);
+        sendFactCheckMessage(tab.id, info.selectionText, tab.url, tab);
       }
     });
   }
@@ -32,18 +32,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   
   if (request.action === "retryFactCheck" && request.text && sender.tab) {
     console.log('Retrying fact check for:', request.text.substring(0, 50) + '...');
-    sendFactCheckMessage(sender.tab.id, request.text, request.url || sender.tab.url);
+    sendFactCheckMessage(sender.tab.id, request.text, request.url || sender.tab.url, sender.tab);
   }
 });
 
-function sendFactCheckMessage(tabId, text, url) {
+function sendFactCheckMessage(tabId, text, url, tab) {
   chrome.tabs.sendMessage(tabId, { action: "showLoading" });
 
   chrome.storage.sync.get('apiKey', async (data) => {
     if (data.apiKey) {
       try {
         const contextText = await fetchPageContent(tabId);
-        const response = await factCheckWithAI(text, contextText, url, data.apiKey);
+        const response = await factCheckWithAI(text, contextText, url, data.apiKey, tab);
         console.log('Sending fact check result to content script:', response);
         chrome.tabs.sendMessage(tabId, {
           action: "factCheckResult",
@@ -78,7 +78,7 @@ async function fetchPageContent(tabId) {
   }
 }
 
-async function factCheckWithAI(text, contextText, url, apiKey) {
+async function factCheckWithAI(text, contextText, url, apiKey, tab) {
   console.log('Starting fact check with AI...');
   console.log('Text length:', text.length);
   console.log('Context length:', contextText ? contextText.length : 0);
@@ -98,7 +98,7 @@ async function factCheckWithAI(text, contextText, url, apiKey) {
       'authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'sonar-reasoning-pro',
+      model: 'sonar',
       messages: [
         { role: 'system', content: `You are a multilingual fact-checking assistant. Your primary tasks are:
 
@@ -136,17 +136,39 @@ Do not deviate from this format. Do not add any additional sections or explanati
   console.log('Sending request to Perplexity API...');
   
   try {
-    // Set a timeout for the fetch request (30 seconds)
+    // Set a timeout for the fetch request (120 seconds = 2 minutes)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
+    
+    // Send a message to the content script to start the timer
+    chrome.tabs.sendMessage(tab.id, { 
+      action: "startTimer", 
+      maxTime: 120 // in seconds
+    });
+    
+    // Listen for abort requests from the content script
+    const abortListener = (request, sender, sendResponse) => {
+      if (request.action === "abortFactCheck") {
+        console.log('User aborted fact check');
+        controller.abort();
+        chrome.runtime.onMessage.removeListener(abortListener);
+        sendResponse({ success: true });
+        return true; // Keep the message channel open for the async response
+      }
+    };
+    chrome.runtime.onMessage.addListener(abortListener);
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       ...options,
       signal: controller.signal
     });
     
-    // Clear the timeout
+    // Clear the timeout and remove the listener
     clearTimeout(timeoutId);
+    chrome.runtime.onMessage.removeListener(abortListener);
+    
+    // Send a message to stop the timer
+    chrome.tabs.sendMessage(tab.id, { action: "stopTimer" });
     
     console.log('Received response from Perplexity API:', response.status, response.statusText);
     
@@ -194,7 +216,7 @@ Do not deviate from this format. Do not add any additional sections or explanati
   } catch (error) {
     console.error('Error in Perplexity API request:', error);
     if (error.name === 'AbortError') {
-      throw new Error('Request to Perplexity API timed out after 30 seconds. Please try again later.');
+      throw new Error('Request to Perplexity API timed out after 2 minutes. Please try again later.');
     }
     throw error;
   }
