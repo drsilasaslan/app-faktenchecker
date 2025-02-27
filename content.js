@@ -63,21 +63,35 @@
 
   function updateFactCheckBox(result) {
     console.log('Updating fact check box with:', result);
-    const truthColor = getTruthColor(result.truthPercentage);
+    
+    // Set default values for missing sections
+    const truthPercentage = result.truthPercentage || 'N/A';
+    const factCheck = result.factCheck || 'No fact check provided.';
+    const context = result.context || 'No context provided.';
+    const sources = result.sources || [];
+    
+    // Determine color for truth percentage
+    const truthColor = getTruthColor(truthPercentage);
     console.log('Truth color:', truthColor);
+    
+    // Create HTML for sources list
+    const sourcesHTML = sources.length > 0 
+      ? sources.map(source => `<li value="${source.index}"><a href="${source.url}" target="_blank">${source.title}</a></li>`).join('')
+      : '<li>No sources provided.</li>';
+    
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
         <h2>Fact Checker</h2>
         <button id="close-fact-check">×</button>
       </div>
-      <h3 id="truth-percentage">Truth Percentage: <span style="color: ${truthColor} !important;">${result.truthPercentage}</span></h3>
+      <h3 id="truth-percentage">Truth Percentage: <span style="color: ${truthColor} !important;">${truthPercentage}</span></h3>
       <h4>Fact Check:</h4>
-      <p>${result.factCheck}</p>
+      <p>${factCheck}</p>
       <h4>Context:</h4>
-      <p>${result.context}</p>
+      <p>${context}</p>
       <h4>Sources:</h4>
       <ol>
-        ${result.sources.map(source => `<li value="${source.index}"><a href="${source.url}" target="_blank">${source.title}</a></li>`).join('')}
+        ${sourcesHTML}
       </ol>
       <button id="copy-result">Copy Result</button>
     `;
@@ -89,37 +103,138 @@
   function parseFactCheckResult(result) {
     console.log("Parsing raw result:", result);
 
-    // Fallback für den Fall, dass die Antwort nicht dem erwarteten Format entspricht
+    // Fallback for invalid result format
     if (!result || typeof result !== 'string') {
       console.error("Invalid result format, not a string:", result);
       return {
         truthPercentage: 'N/A',
-        factCheck: 'Die Antwort vom API konnte nicht verarbeitet werden.',
-        context: 'Bitte versuchen Sie es erneut mit einem kürzeren oder klareren Text.',
+        factCheck: 'The API response could not be processed.',
+        context: 'Please try again with a shorter or clearer text.',
         sources: []
       };
     }
 
+    // Create a clean version of the result with consistent newlines
+    const cleanResult = result.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+    console.log("Cleaned result:", cleanResult);
+
+    // Initialize the parsed result with default values
+    const parsedResult = {
+      truthPercentage: 'N/A',
+      factCheck: 'No fact check provided.',
+      context: 'No context provided.',
+      sources: []
+    };
+
+    // Extract sections using regex patterns for more reliable parsing
+    // Sources section
+    const sourcesMatch = cleanResult.match(/Sources:[\s\S]*?(?=Truth:|Fact Check:|Context:|$)/i);
+    if (sourcesMatch) {
+      const sourcesText = sourcesMatch[0];
+      console.log("Sources section:", sourcesText);
+      
+      // Extract individual sources
+      const sourceLines = sourcesText.split('\n').slice(1);
+      sourceLines.forEach(line => {
+        const match = line.match(/(\d+)\.\s+(.+)/);
+        if (match) {
+          const [, index, content] = match;
+          const urlMatch = content.match(/\[(.+?)\]\((.+?)\)/);
+          if (urlMatch) {
+            parsedResult.sources.push({ index, title: urlMatch[1], url: urlMatch[2] });
+          } else {
+            parsedResult.sources.push({ index, title: content, url: '#' });
+          }
+        }
+      });
+    }
+
+    // Truth percentage section
+    const truthMatch = cleanResult.match(/Truth:[\s\S]*?(?=Fact Check:|Context:|Sources:|$)/i);
+    if (truthMatch) {
+      const truthText = truthMatch[0].trim();
+      console.log("Truth section:", truthText);
+      
+      // Extract the percentage
+      const percentageMatch = truthText.match(/Truth:\s*(.*)/i);
+      if (percentageMatch && percentageMatch[1]) {
+        parsedResult.truthPercentage = percentageMatch[1].trim();
+      }
+    }
+
+    // Fact Check section
+    const factCheckMatch = cleanResult.match(/Fact Check:[\s\S]*?(?=Context:|Truth:|Sources:|$)/i);
+    if (factCheckMatch) {
+      const factCheckText = factCheckMatch[0].trim();
+      console.log("Fact Check section:", factCheckText);
+      
+      // Extract the fact check content
+      const contentMatch = factCheckText.match(/Fact Check:\s*([\s\S]*)/i);
+      if (contentMatch && contentMatch[1]) {
+        parsedResult.factCheck = contentMatch[1].trim();
+      }
+    }
+
+    // Context section
+    const contextMatch = cleanResult.match(/Context:[\s\S]*?(?=Fact Check:|Truth:|Sources:|$)/i);
+    if (contextMatch) {
+      const contextText = contextMatch[0].trim();
+      console.log("Context section:", contextText);
+      
+      // Extract the context content
+      const contentMatch = contextText.match(/Context:\s*([\s\S]*)/i);
+      if (contentMatch && contentMatch[1]) {
+        parsedResult.context = contentMatch[1].trim();
+      }
+    }
+
+    // If we couldn't find any sections using the regex approach, fall back to the original method
+    if (parsedResult.sources.length === 0 && 
+        parsedResult.truthPercentage === 'N/A' && 
+        parsedResult.factCheck === 'No fact check provided.' && 
+        parsedResult.context === 'No context provided.') {
+      
+      console.log("Regex parsing failed, falling back to original method");
+      return parseFactCheckResultOriginal(cleanResult);
+    }
+
+    // If we have sources but no truth percentage, try to extract it from the fact check or context
+    if (parsedResult.truthPercentage === 'N/A' && (parsedResult.factCheck !== 'No fact check provided.' || parsedResult.context !== 'No context provided.')) {
+      const percentageMatch = cleanResult.match(/(\d{1,3}(?:\.\d+)?%|\d{1,3}(?:\.\d+)? percent)/i);
+      if (percentageMatch) {
+        parsedResult.truthPercentage = percentageMatch[0];
+        console.log("Extracted truth percentage from text:", parsedResult.truthPercentage);
+      }
+    }
+
+    console.log("Final parsed result:", parsedResult);
+
+    // Replace source references with hyperlinks
+    parsedResult.factCheck = replaceSourceReferences(parsedResult.factCheck, parsedResult.sources);
+    parsedResult.context = replaceSourceReferences(parsedResult.context, parsedResult.sources);
+
+    return parsedResult;
+  }
+
+  // Original parsing method as a fallback
+  function parseFactCheckResultOriginal(result) {
     const sections = result.split('\n\n');
     const parsedResult = {
       truthPercentage: 'N/A',
-      factCheck: 'Keine Faktenprüfung bereitgestellt.',
-      context: 'Kein Kontext bereitgestellt.',
+      factCheck: 'No fact check provided.',
+      context: 'No context provided.',
       sources: []
     };
 
     let currentSection = '';
 
-    // Versuche, die Abschnitte zu identifizieren und zu extrahieren
     sections.forEach(section => {
-      // Quellen-Abschnitt
       if (section.toLowerCase().startsWith('sources:') || 
           section.toLowerCase().startsWith('quellen:') || 
           section.toLowerCase().startsWith('sources :') || 
           section.toLowerCase().startsWith('quellen :')) {
         currentSection = 'sources';
         const sourceLines = section.split('\n').slice(1);
-        console.log("Source lines:", sourceLines);
         sourceLines.forEach(line => {
           const match = line.match(/(\d+)\.\s+(.+)/);
           if (match) {
@@ -133,7 +248,6 @@
           }
         });
       } 
-      // Wahrheits-Abschnitt
       else if (section.toLowerCase().startsWith('truth:') || 
                section.toLowerCase().startsWith('wahrheit:') || 
                section.toLowerCase().startsWith('truth :') || 
@@ -141,7 +255,6 @@
         currentSection = 'truth';
         parsedResult.truthPercentage = section.split(':')[1].trim();
       } 
-      // Faktenprüfungs-Abschnitt
       else if (section.toLowerCase().startsWith('fact check:') || 
                section.toLowerCase().startsWith('faktencheck:') || 
                section.toLowerCase().startsWith('fact check :') || 
@@ -149,7 +262,6 @@
         currentSection = 'factCheck';
         parsedResult.factCheck = section.split(':').slice(1).join(':').trim();
       } 
-      // Kontext-Abschnitt
       else if (section.toLowerCase().startsWith('context:') || 
                section.toLowerCase().startsWith('kontext:') || 
                section.toLowerCase().startsWith('context :') || 
@@ -157,7 +269,6 @@
         currentSection = 'context';
         parsedResult.context = section.split(':').slice(1).join(':').trim();
       } 
-      // Fortsetzung des aktuellen Abschnitts
       else if (currentSection === 'factCheck') {
         parsedResult.factCheck += ' ' + section.trim();
       } else if (currentSection === 'context') {
@@ -165,17 +276,10 @@
       }
     });
 
-    console.log("Parsed result:", parsedResult);
-
-    // Wenn keine Quellen gefunden wurden, aber Text vorhanden ist, versuche eine alternative Parsing-Methode
-    if (parsedResult.sources.length === 0 && result.length > 100) {
-      console.log("No sources found with standard parsing, trying alternative method");
-      
-      // Suche nach URLs in eckigen Klammern
+    // If no sources found, try to extract them from the text
+    if (parsedResult.sources.length === 0) {
       const urlMatches = result.match(/\[([^\]]+)\]\(([^)]+)\)/g);
       if (urlMatches && urlMatches.length > 0) {
-        console.log("Found URL matches with alternative method:", urlMatches);
-        
         urlMatches.forEach((match, index) => {
           const urlParts = match.match(/\[([^\]]+)\]\(([^)]+)\)/);
           if (urlParts && urlParts.length >= 3) {
@@ -189,39 +293,77 @@
       }
     }
 
-    // Ersetze Quellenreferenzen durch Hyperlinks
+    // Replace source references with hyperlinks
     parsedResult.factCheck = replaceSourceReferences(parsedResult.factCheck, parsedResult.sources);
     parsedResult.context = replaceSourceReferences(parsedResult.context, parsedResult.sources);
 
     return parsedResult;
   }
 
+  // Helper function to replace source references with hyperlinks
   function replaceSourceReferences(text, sources) {
-    return text.replace(/\[(\d+(?:,\s*\d+)*)\]/g, (match, p1) => {
-      const indices = p1.split(',').map(s => s.trim());
-      const links = indices.map(index => {
-        const source = sources.find(s => s.index === index);
-        if (source) {
-          return `<a href="${source.url}" target="_blank">[${index}]</a>`;
-        }
-        return `[${index}]`;
-      });
-      return links.join(', ');
+    if (!text || !sources || sources.length === 0) {
+      return text;
+    }
+
+    // Replace references like [1], [2], etc. with hyperlinks
+    let modifiedText = text;
+    sources.forEach(source => {
+      const regex = new RegExp(`\\[${source.index}\\]`, 'g');
+      modifiedText = modifiedText.replace(regex, `<a href="${source.url}" target="_blank">[${source.index}]</a>`);
     });
+
+    return modifiedText;
   }
 
   function getTruthColor(percentage) {
-    console.log('Received percentage:', percentage);
-    const value = parseInt(percentage);
-    console.log('Parsed value:', value);
-    if (isNaN(value)) {
-      console.log('Returning black due to NaN');
-      return 'black';
+    // Handle N/A case
+    if (!percentage || percentage === 'N/A') {
+      return '#888888'; // Gray for unknown
     }
-    if (value >= 80) return 'green';
-    if (value >= 60) return 'goldenrod';
-    if (value >= 40) return 'orange';
-    return 'red';
+    
+    // Extract numeric value from percentage string
+    let numericValue;
+    
+    if (typeof percentage === 'string') {
+      // Try to extract a number from the string
+      const matches = percentage.match(/(\d+(?:\.\d+)?)/);
+      if (matches && matches[1]) {
+        numericValue = parseFloat(matches[1]);
+      } else {
+        // Handle text-based percentages
+        const lowerPercentage = percentage.toLowerCase();
+        if (lowerPercentage.includes('high') || lowerPercentage.includes('hoch')) {
+          numericValue = 85;
+        } else if (lowerPercentage.includes('medium') || lowerPercentage.includes('mittel')) {
+          numericValue = 50;
+        } else if (lowerPercentage.includes('low') || lowerPercentage.includes('niedrig')) {
+          numericValue = 25;
+        } else {
+          return '#888888'; // Gray for unknown format
+        }
+      }
+    } else if (typeof percentage === 'number') {
+      numericValue = percentage;
+    } else {
+      return '#888888'; // Gray for unknown type
+    }
+    
+    // Ensure the value is between 0 and 100
+    numericValue = Math.max(0, Math.min(100, numericValue));
+    
+    // Determine color based on percentage
+    if (numericValue >= 80) {
+      return '#4CAF50'; // Green for high truth
+    } else if (numericValue >= 60) {
+      return '#8BC34A'; // Light green for mostly true
+    } else if (numericValue >= 40) {
+      return '#FFC107'; // Yellow for mixed
+    } else if (numericValue >= 20) {
+      return '#FF9800'; // Orange for mostly false
+    } else {
+      return '#F44336'; // Red for false
+    }
   }
 
   function showError(message) {

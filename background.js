@@ -111,7 +111,7 @@ async function factCheckWithAI(text, contextText, url, apiKey) {
 7. Write a fact check (3-4 concise sentences) that directly addresses the claims in the selected text.
 8. Provide context (3-4 concise sentences) that places the selected text within the broader topic or article it's from.
 
-Format your response EXACTLY as follows, in the detected language:
+IMPORTANT: You MUST format your response EXACTLY as follows, with these exact section headings and in this exact order:
 
 Sources:
 1. [source 1 title](URL)
@@ -124,7 +124,7 @@ Fact Check: [your fact check with inline source references, e.g. [1], [2], etc.]
 
 Context: [your context with inline source references, e.g. [1], [2], etc.]
 
-If you cannot find enough reliable sources to fact-check the statement, say so explicitly and explain why. If a claim is widely accepted as common knowledge, state this and provide general reference sources.` },
+Do not deviate from this format. Do not add any additional sections or explanations. If you cannot find enough reliable sources to fact-check the statement, say so explicitly in the Fact Check section and explain why. If a claim is widely accepted as common knowledge, state this and provide general reference sources.` },
         { role: 'user', content: `Fact check the following selected text: "${text}"\n\nBroader context from the page:\n${contextText}\n\nPage URL: ${url}` }
       ],
       max_tokens: 2048,
@@ -167,6 +167,14 @@ If you cannot find enough reliable sources to fact-check the statement, say so e
     
     const result = await response.json();
     console.log('Perplexity API response structure:', Object.keys(result));
+    
+    // Log the full response for debugging
+    console.log('Full Perplexity API response:', JSON.stringify(result, null, 2));
+    
+    // If the response has a choices array, log the content
+    if (result.choices && result.choices.length > 0) {
+      console.log('Response content:', result.choices[0].message.content);
+    }
 
     if (result.error) {
       console.error('API returned error object:', result.error);
