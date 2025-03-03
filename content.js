@@ -433,7 +433,7 @@
     // Ensure the value is between 0 and 100
     numericValue = Math.max(0, Math.min(100, numericValue));
     
-    // Determine color based on percentage
+    // Determine color based on percentage - using the logo colors
     if (numericValue >= 80) {
       return '#4CAF50'; // Green for high truth
     } else if (numericValue >= 60) {
@@ -723,59 +723,66 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       max-width: 80vw;
       max-height: 80vh;
       overflow-y: auto;
-      background-color: ${isDarkMode() ? '#333' : 'white'};
-      color: ${isDarkMode() ? 'white' : 'black'} !important;
-      border: 1px solid #ccc;
+      background-color: #1a1f2b;
+      color: white !important;
+      border: 1px solid #3a3f4b;
       border-radius: 10px;
       padding: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       z-index: 9999;
       font-family: 'Satoshi', sans-serif !important;
     }
     #perplexity-fact-check-box * {
       font-family: 'Satoshi', sans-serif !important;
-      color: ${isDarkMode() ? 'white' : 'black'} !important;
+      color: white !important;
     }
     #perplexity-fact-check-box .fact-check-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      border-bottom: 1px solid #3a3f4b;
+      padding-bottom: 10px;
     }
     #perplexity-fact-check-box h2 {
       margin: 0;
       text-align: center;
       width: 100%;
       font-size: 24px;
+      color: white !important;
     }
     #perplexity-fact-check-box h3 {
       text-align: center;
       font-size: 20px;
       margin-top: 0;
       margin-bottom: 25px;
+      color: white !important;
     }
     #perplexity-fact-check-box h4 {
       margin-top: 20px;
       margin-bottom: 10px;
       font-size: 18px;
+      color: #FFC107 !important;
     }
     #perplexity-fact-check-box p, #perplexity-fact-check-box li {
       font-size: 14px;
       line-height: 1.4;
+      color: #cccccc !important;
     }
     #perplexity-fact-check-box a {
-      color: ${isDarkMode() ? '#add8e6' : '#0000EE'} !important;
+      color: #FFC107 !important;
       text-decoration: none;
     }
     #perplexity-fact-check-box a:hover {
       text-decoration: underline;
+      color: #e6af06 !important;
     }
     #close-fact-check {
       background: none;
       border: none;
       font-size: 20px;
       cursor: pointer;
-      color: ${isDarkMode() ? 'white' : 'black'} !important;
+      color: white !important;
       position: absolute;
       top: 10px;
       right: 10px;
@@ -790,13 +797,16 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       border-radius: 5px;
       cursor: pointer;
       font-size: 14px;
+      transition: background-color 0.3s;
     }
     #copy-result:hover {
       background-color: #45a049;
     }
     .loader {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #3498db;
+      border: 5px solid #2a2f3b;
+      border-top: 5px solid #FFC107;
+      border-right: 5px solid #F44336;
+      border-bottom: 5px solid #4CAF50;
       border-radius: 50%;
       width: 50px;
       height: 50px;
@@ -809,37 +819,40 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
     }
     .error-container {
       padding: 20px;
-      background-color: #fff8f8;
-      border-left: 4px solid #f44336;
+      background-color: #2a2f3b;
+      border-left: 4px solid #F44336;
       margin-bottom: 15px;
+      border-radius: 5px;
     }
     .error-title {
       font-size: 18px;
       margin-top: 0;
-      color: #f44336;
+      color: #F44336 !important;
     }
     .error-message {
       font-size: 14px;
       margin-bottom: 20px;
-      color: #d32f2f;
+      color: #F44336 !important;
       font-weight: bold;
     }
     .error-help {
       font-size: 14px;
-      background-color: #f5f5f5;
+      background-color: #1a1f2b;
       padding: 10px;
       border-radius: 4px;
+      border: 1px solid #3a3f4b;
     }
     .error-help a {
-      color: #2196F3;
+      color: #FFC107 !important;
       text-decoration: none;
     }
     .error-help a:hover {
       text-decoration: underline;
+      color: #e6af06 !important;
     }
     .retry-button {
       background-color: #4CAF50;
-      color: white;
+      color: white !important;
       border: none;
       padding: 8px 15px;
       border-radius: 4px;
@@ -847,6 +860,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       font-size: 14px;
       margin-top: 10px;
       display: block;
+      transition: background-color 0.3s;
     }
     
     .retry-button:hover {
@@ -855,7 +869,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
     
     .loading-tip {
       font-size: 12px;
-      color: #666;
+      color: #cccccc !important;
       font-style: italic;
       margin-top: 10px;
       text-align: center;
@@ -865,9 +879,10 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       text-align: center;
       margin: 10px 0;
       font-weight: bold;
+      color: #FFC107 !important;
     }
     .abort-button {
-      background-color: #f44336;
+      background-color: #F44336;
       color: white !important;
       border: none;
       padding: 8px 15px;
@@ -878,6 +893,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       display: block;
       width: 120px;
       text-align: center;
+      transition: background-color 0.3s;
     }
     .abort-button:hover {
       background-color: #d32f2f;

@@ -2,8 +2,8 @@ body {
   width: 350px;
   padding: 20px;
   font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: #1a1f2b;
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,30 +17,66 @@ body {
   width: 100%;
 }
 
+.logo-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .logo {
   width: 48px;
   height: 48px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  z-index: 2;
+}
+
+.logo-gauge {
+  display: flex;
+  width: 80px;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.gauge-segment {
+  flex: 1;
+  height: 100%;
+}
+
+.gauge-segment.red {
+  background-color: #F44336;
+}
+
+.gauge-segment.yellow {
+  background-color: #FFC107;
+}
+
+.gauge-segment.green {
+  background-color: #4CAF50;
 }
 
 h1 {
   font-size: 20px;
   margin-bottom: 20px;
-  color: #4CAF50;
+  color: #ffffff;
   text-align: center;
 }
 
 #apiKeySection {
-  background-color: #fff;
+  background-color: #2a2f3b;
   border-radius: 15px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   max-width: 350px;
+  border: 1px solid #3a3f4b;
 }
 
 label {
@@ -48,6 +84,7 @@ label {
   margin-bottom: 10px;
   font-weight: bold;
   text-align: center;
+  color: #ffffff;
 }
 
 input[type="text"] {
@@ -55,10 +92,12 @@ input[type="text"] {
   max-width: 300px;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #3a3f4b;
   border-radius: 5px;
   box-sizing: border-box;
   text-align: center;
+  background-color: #1a1f2b;
+  color: #ffffff;
 }
 
 button {
@@ -72,6 +111,7 @@ button {
   cursor: pointer;
   font-size: 16px;
   text-align: center;
+  transition: background-color 0.3s;
 }
 
 button:hover {
@@ -91,12 +131,28 @@ button:hover {
   max-width: none;
 }
 
+.button-group button:first-child {
+  background-color: #4CAF50;
+}
+
+.button-group button:first-child:hover {
+  background-color: #45a049;
+}
+
+.button-group button:last-child {
+  background-color: #FFC107;
+}
+
+.button-group button:last-child:hover {
+  background-color: #e6af06;
+}
+
 .api-info {
   width: 100%;
   max-width: 300px;
   margin-top: 10px;
   font-size: 12px;
-  color: #666;
+  color: #cccccc;
   text-align: center;
 }
 
@@ -105,35 +161,38 @@ button:hover {
 }
 
 .api-info a {
-  color: #4CAF50;
+  color: #FFC107;
   text-decoration: none;
 }
 
 .api-info a:hover {
   text-decoration: underline;
+  color: #e6af06;
 }
 
 .instructions {
-  background-color: #fff;
+  background-color: #2a2f3b;
   border-radius: 15px;
   padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 350px;
   margin-top: 10px;
+  border: 1px solid #3a3f4b;
 }
 
 .instructions h3 {
   font-size: 16px;
   margin-top: 0;
   margin-bottom: 10px;
-  color: #4CAF50;
+  color: #ffffff;
   text-align: center;
 }
 
 .instructions ol {
   margin: 0;
   padding-left: 25px;
+  color: #cccccc;
 }
 
 .instructions li {
@@ -146,6 +205,7 @@ button:hover {
   font-style: italic;
   text-align: center;
   min-height: 20px;
+  color: #cccccc;
 }
 
 #status.success {
@@ -157,5 +217,60 @@ button:hover {
 }
 
 #apiKeySection:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Animation for button pulse */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse-animation {
+  animation: pulse 0.5s ease-in-out;
+}
+
+.success-pulse {
+  animation: pulse 0.5s ease-in-out;
+  background-color: #4CAF50 !important;
+}
+
+.error-pulse {
+  animation: pulse 0.5s ease-in-out;
+  background-color: #F44336 !important;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 5px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Truth percentage gauge styling */
+#truth-percentage {
+  position: relative;
+  padding-bottom: 15px;
+}
+
+#truth-percentage::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 5px;
+  background: linear-gradient(to right, #F44336 0%, #FFC107 50%, #4CAF50 100%);
+  border-radius: 5px;
 }

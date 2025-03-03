@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ apiKey }, () => {
       status.textContent = 'API Key saved!';
       status.className = 'success';
+      
+      // Visual feedback - button pulse animation
+      saveButton.classList.add('pulse-animation');
+      setTimeout(() => {
+        saveButton.classList.remove('pulse-animation');
+      }, 1000);
+      
       setTimeout(() => {
         status.textContent = '';
         status.className = '';
@@ -54,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
       status.textContent = 'Testing API Key...';
       status.className = '';
       
+      // Show loading indicator on the button
+      testApiButton.innerHTML = '<span class="loading-spinner"></span> Testing...';
+      testApiButton.disabled = true;
+      
       try {
         // Simple test request to the Perplexity API
         const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -72,9 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
           })
         });
         
+        // Reset button
+        testApiButton.innerHTML = 'Test Key';
+        testApiButton.disabled = false;
+        
         if (response.ok) {
           status.textContent = 'API Key is valid!';
           status.className = 'success';
+          
+          // Visual feedback - button pulse animation
+          testApiButton.classList.add('success-pulse');
+          setTimeout(() => {
+            testApiButton.classList.remove('success-pulse');
+          }, 1000);
         } else {
           const errorData = await response.json().catch(() => null);
           if (response.status === 401) {
@@ -85,10 +106,26 @@ document.addEventListener('DOMContentLoaded', () => {
             status.textContent = `API Error: ${response.status} ${response.statusText}`;
           }
           status.className = 'error';
+          
+          // Visual feedback - button error animation
+          testApiButton.classList.add('error-pulse');
+          setTimeout(() => {
+            testApiButton.classList.remove('error-pulse');
+          }, 1000);
         }
       } catch (error) {
+        // Reset button
+        testApiButton.innerHTML = 'Test Key';
+        testApiButton.disabled = false;
+        
         status.textContent = `Error testing API Key: ${error.message}`;
         status.className = 'error';
+        
+        // Visual feedback - button error animation
+        testApiButton.classList.add('error-pulse');
+        setTimeout(() => {
+          testApiButton.classList.remove('error-pulse');
+        }, 1000);
       }
     });
   }
