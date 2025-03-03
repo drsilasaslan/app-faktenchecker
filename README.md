@@ -1,8 +1,8 @@
-# Fact Checker Chrome Extension for Perplexity Pro Users
+# Faktencheck Chrome Extension
 
 ## Overview
 
-This Chrome extension allows Perplexity Pro users to fact-check any text on the web using Perplexity's API. It provides a quick and seamless way to verify information without leaving the current webpage.
+This Chrome extension allows users to fact-check any text on the web using the Perplexity API. It provides a quick and seamless way to verify information without leaving the current webpage.
 
 ## Key Features
 
@@ -43,18 +43,18 @@ The extension currently:
 - Displays a countdown timer for long-running requests
 - Allows users to cancel fact-checking requests that take too long
 
-## Credit Usage
+## API Usage
 
-This extension uses the Perplexity API, which comes with a $5 monthly credit for Pro users. Here's what you need to know:
+This extension requires a Perplexity API key to function. Here's what you need to know:
 
-- Your $5 credit refreshes each month with your Perplexity Pro subscription.
-- The extension uses the `sonar-reasoning-pro` model, which provides high-quality fact-checking results.
-- The tool is designed to use tokens efficiently, allowing for plenty of monthly fact checks.
+- You'll need to obtain an API key from Perplexity
+- The extension uses the `sonar-reasoning-pro` model, which provides high-quality fact-checking results
+- Monitor your API usage through your Perplexity account to understand your personal usage patterns
 
-Tips to maximize your credit:
-- Focus on shorter, specific statements for the most efficient use.
-- For longer texts, select the most crucial parts for fact-checking.
-- Monitor your usage through your Perplexity account to understand your personal usage patterns.
+Tips to maximize your API usage:
+- Focus on shorter, specific statements for the most efficient use
+- For longer texts, select the most crucial parts for fact-checking
+- Keep track of your API usage to stay within your desired limits
 
 ## Troubleshooting
 
@@ -63,10 +63,10 @@ If you encounter issues with the extension, try these solutions:
 1. **API Key Issues**: 
    - Ensure your Perplexity API key is entered correctly
    - Use the "Test Key" button to verify your API key is valid
-   - Check that your Perplexity Pro subscription is active
+   - Check that your Perplexity account is active
 
 2. **No Response or Errors**:
-   - Check if you've exceeded your monthly API credits
+   - Check if you've exceeded your API credits
    - Try using the "Retry" button if the fact check fails
    - Refresh the page and attempt the fact check again
    - Look for error messages in the fact check popup
