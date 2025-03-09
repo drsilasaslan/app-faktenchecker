@@ -1,4 +1,4 @@
-(function() {
+(function () {
   if (window.perplexityFactCheckerInjected) {
     return;
   }
@@ -13,25 +13,25 @@
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('Received message in content script:', request);
     switch (request.action) {
-      case "checkInjection":
+      case 'checkInjection':
         sendResponse({ injected: true });
         break;
-      case "showLoading":
+      case 'showLoading':
         showLoading();
         break;
-      case "factCheckResult":
+      case 'factCheckResult':
         showFactCheckResult(request.data);
         break;
-      case "factCheckError":
+      case 'factCheckError':
         showError(request.error);
         break;
-      case "retryFactCheck":
+      case 'retryFactCheck':
         retryFactCheck(request.text, request.url);
         break;
-      case "startTimer":
+      case 'startTimer':
         startTimer(request.maxTime);
         break;
-      case "stopTimer":
+      case 'stopTimer':
         stopTimer();
         break;
     }
@@ -41,18 +41,18 @@
   function startTimer(maxTime) {
     // Stoppe einen eventuell laufenden Timer
     stopTimer();
-    
+
     // Setze die verbleibende Zeit
     remainingTime = maxTime;
-    
+
     // Aktualisiere die Loading-Anzeige
     updateLoadingDisplay();
-    
+
     // Starte den Timer-Intervall
     timerInterval = setInterval(() => {
       remainingTime--;
       updateLoadingDisplay();
-      
+
       // Wenn die Zeit abgelaufen ist, stoppe den Timer
       if (remainingTime <= 0) {
         stopTimer();
@@ -71,12 +71,12 @@
   // Funktion zum Aktualisieren der Loading-Anzeige
   function updateLoadingDisplay() {
     if (!factCheckBox) return;
-    
+
     // Formatiere die verbleibende Zeit
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
     const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    
+
     // Aktualisiere den Timer-Text
     const timerElement = factCheckBox.querySelector('.timer-text');
     if (timerElement) {
@@ -87,14 +87,14 @@
   // Funktion zum Abbrechen der Fact-Check-Anfrage
   function abortFactCheck() {
     console.log('Aborting fact check...');
-    
+
     // Stoppe den Timer
     stopTimer();
-    
+
     // Sende eine Nachricht an das Background-Script
-    chrome.runtime.sendMessage({ action: "abortFactCheck" }, (response) => {
+    chrome.runtime.sendMessage({ action: 'abortFactCheck' }, (response) => {
       console.log('Abort response:', response);
-      
+
       // Zeige eine Meldung an, dass die Anfrage abgebrochen wurde
       showError('Die Fact-Check-Anfrage wurde abgebrochen.');
     });
@@ -117,7 +117,7 @@
     `;
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
-    
+
     // Füge einen Event-Listener für den Abbrechen-Button hinzu
     const abortButton = factCheckBox.querySelector('#abort-fact-check');
     if (abortButton) {
@@ -144,22 +144,28 @@
 
   function updateFactCheckBox(result) {
     console.log('Updating fact check box with:', result);
-    
+
     // Set default values for missing sections
     const truthPercentage = result.truthPercentage || 'N/A';
     const factCheck = result.factCheck || 'No fact check provided.';
     const context = result.context || 'No context provided.';
     const sources = result.sources || [];
-    
+
     // Determine color for truth percentage
     const truthColor = getTruthColor(truthPercentage);
     console.log('Truth color:', truthColor);
-    
+
     // Create HTML for sources list
-    const sourcesHTML = sources.length > 0 
-      ? sources.map(source => `<li value="${source.index}"><a href="${source.url}" target="_blank">${source.title}</a></li>`).join('')
-      : '<li>No sources provided.</li>';
-    
+    const sourcesHTML =
+      sources.length > 0
+        ? sources
+            .map(
+              (source) =>
+                `<li value="${source.index}"><a href="${source.url}" target="_blank">${source.title}</a></li>`
+            )
+            .join('')
+        : '<li>No sources provided.</li>';
+
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
         <h2>Fact Checker</h2>
@@ -182,47 +188,55 @@
   }
 
   function parseFactCheckResult(result) {
-    console.log("Parsing raw result:", result);
+    console.log('Parsing raw result:', result);
 
     // Fallback for invalid result format
     if (!result || typeof result !== 'string') {
-      console.error("Invalid result format, not a string:", result);
+      console.error('Invalid result format, not a string:', result);
       return {
         truthPercentage: 'N/A',
         factCheck: 'The API response could not be processed.',
         context: 'Please try again with a shorter or clearer text.',
-        sources: []
+        sources: [],
       };
     }
 
     // Create a clean version of the result with consistent newlines
-    const cleanResult = result.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-    console.log("Cleaned result:", cleanResult);
+    const cleanResult = result
+      .replace(/\r\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n');
+    console.log('Cleaned result:', cleanResult);
 
     // Initialize the parsed result with default values
     const parsedResult = {
       truthPercentage: 'N/A',
       factCheck: 'No fact check provided.',
       context: 'No context provided.',
-      sources: []
+      sources: [],
     };
 
     // Extract sections using regex patterns for more reliable parsing
     // Sources section
-    const sourcesMatch = cleanResult.match(/Sources:[\s\S]*?(?=Truth:|Fact Check:|Context:|$)/i);
+    const sourcesMatch = cleanResult.match(
+      /Sources:[\s\S]*?(?=Truth:|Fact Check:|Context:|$)/i
+    );
     if (sourcesMatch) {
       const sourcesText = sourcesMatch[0];
-      console.log("Sources section:", sourcesText);
-      
+      console.log('Sources section:', sourcesText);
+
       // Extract individual sources
       const sourceLines = sourcesText.split('\n').slice(1);
-      sourceLines.forEach(line => {
+      sourceLines.forEach((line) => {
         const match = line.match(/(\d+)\.\s+(.+)/);
         if (match) {
           const [, index, content] = match;
           const urlMatch = content.match(/\[([^\]]+)\]\(([^)]+)\)/);
           if (urlMatch) {
-            parsedResult.sources.push({ index, title: urlMatch[1], url: urlMatch[2] });
+            parsedResult.sources.push({
+              index,
+              title: urlMatch[1],
+              url: urlMatch[2],
+            });
           } else {
             parsedResult.sources.push({ index, title: content, url: '#' });
           }
@@ -231,11 +245,13 @@
     }
 
     // Truth percentage section
-    const truthMatch = cleanResult.match(/Truth:[\s\S]*?(?=Fact Check:|Context:|Sources:|$)/i);
+    const truthMatch = cleanResult.match(
+      /Truth:[\s\S]*?(?=Fact Check:|Context:|Sources:|$)/i
+    );
     if (truthMatch) {
       const truthText = truthMatch[0].trim();
-      console.log("Truth section:", truthText);
-      
+      console.log('Truth section:', truthText);
+
       // Extract the percentage
       const percentageMatch = truthText.match(/Truth:\s*(.*)/i);
       if (percentageMatch && percentageMatch[1]) {
@@ -244,11 +260,13 @@
     }
 
     // Fact Check section
-    const factCheckMatch = cleanResult.match(/Fact Check:[\s\S]*?(?=Context:|Truth:|Sources:|$)/i);
+    const factCheckMatch = cleanResult.match(
+      /Fact Check:[\s\S]*?(?=Context:|Truth:|Sources:|$)/i
+    );
     if (factCheckMatch) {
       const factCheckText = factCheckMatch[0].trim();
-      console.log("Fact Check section:", factCheckText);
-      
+      console.log('Fact Check section:', factCheckText);
+
       // Extract the fact check content
       const contentMatch = factCheckText.match(/Fact Check:\s*([\s\S]*)/i);
       if (contentMatch && contentMatch[1]) {
@@ -257,11 +275,13 @@
     }
 
     // Context section
-    const contextMatch = cleanResult.match(/Context:[\s\S]*?(?=Fact Check:|Truth:|Sources:|$)/i);
+    const contextMatch = cleanResult.match(
+      /Context:[\s\S]*?(?=Fact Check:|Truth:|Sources:|$)/i
+    );
     if (contextMatch) {
       const contextText = contextMatch[0].trim();
-      console.log("Context section:", contextText);
-      
+      console.log('Context section:', contextText);
+
       // Extract the context content
       const contentMatch = contextText.match(/Context:\s*([\s\S]*)/i);
       if (contentMatch && contentMatch[1]) {
@@ -270,29 +290,45 @@
     }
 
     // If we couldn't find any sections using the regex approach, fall back to the original method
-    if (parsedResult.sources.length === 0 && 
-        parsedResult.truthPercentage === 'N/A' && 
-        parsedResult.factCheck === 'No fact check provided.' && 
-        parsedResult.context === 'No context provided.') {
-      
-      console.log("Regex parsing failed, falling back to original method");
+    if (
+      parsedResult.sources.length === 0 &&
+      parsedResult.truthPercentage === 'N/A' &&
+      parsedResult.factCheck === 'No fact check provided.' &&
+      parsedResult.context === 'No context provided.'
+    ) {
+      console.log('Regex parsing failed, falling back to original method');
       return parseFactCheckResultOriginal(cleanResult);
     }
 
     // If we have sources but no truth percentage, try to extract it from the fact check or context
-    if (parsedResult.truthPercentage === 'N/A' && (parsedResult.factCheck !== 'No fact check provided.' || parsedResult.context !== 'No context provided.')) {
-      const percentageMatch = cleanResult.match(/(\d{1,3}(?:\.\d+)?%|\d{1,3}(?:\.\d+)? percent)/i);
+    if (
+      parsedResult.truthPercentage === 'N/A' &&
+      (parsedResult.factCheck !== 'No fact check provided.' ||
+        parsedResult.context !== 'No context provided.')
+    ) {
+      const percentageMatch = cleanResult.match(
+        /(\d{1,3}(?:\.\d+)?%|\d{1,3}(?:\.\d+)? percent)/i
+      );
       if (percentageMatch) {
         parsedResult.truthPercentage = percentageMatch[0];
-        console.log("Extracted truth percentage from text:", parsedResult.truthPercentage);
+        console.log(
+          'Extracted truth percentage from text:',
+          parsedResult.truthPercentage
+        );
       }
     }
 
-    console.log("Final parsed result:", parsedResult);
+    console.log('Final parsed result:', parsedResult);
 
     // Replace source references with hyperlinks
-    parsedResult.factCheck = replaceSourceReferences(parsedResult.factCheck, parsedResult.sources);
-    parsedResult.context = replaceSourceReferences(parsedResult.context, parsedResult.sources);
+    parsedResult.factCheck = replaceSourceReferences(
+      parsedResult.factCheck,
+      parsedResult.sources
+    );
+    parsedResult.context = replaceSourceReferences(
+      parsedResult.context,
+      parsedResult.sources
+    );
 
     return parsedResult;
   }
@@ -304,53 +340,61 @@
       truthPercentage: 'N/A',
       factCheck: 'No fact check provided.',
       context: 'No context provided.',
-      sources: []
+      sources: [],
     };
 
     let currentSection = '';
 
-    sections.forEach(section => {
-      if (section.toLowerCase().startsWith('sources:') || 
-          section.toLowerCase().startsWith('quellen:') || 
-          section.toLowerCase().startsWith('sources :') || 
-          section.toLowerCase().startsWith('quellen :')) {
+    sections.forEach((section) => {
+      if (
+        section.toLowerCase().startsWith('sources:') ||
+        section.toLowerCase().startsWith('quellen:') ||
+        section.toLowerCase().startsWith('sources :') ||
+        section.toLowerCase().startsWith('quellen :')
+      ) {
         currentSection = 'sources';
         const sourceLines = section.split('\n').slice(1);
-        sourceLines.forEach(line => {
+        sourceLines.forEach((line) => {
           const match = line.match(/(\d+)\.\s+(.+)/);
           if (match) {
             const [, index, content] = match;
             const urlMatch = content.match(/\[(.+?)\]\((.+?)\)/);
             if (urlMatch) {
-              parsedResult.sources.push({ index, title: urlMatch[1], url: urlMatch[2] });
+              parsedResult.sources.push({
+                index,
+                title: urlMatch[1],
+                url: urlMatch[2],
+              });
             } else {
               parsedResult.sources.push({ index, title: content, url: '#' });
             }
           }
         });
-      } 
-      else if (section.toLowerCase().startsWith('truth:') || 
-               section.toLowerCase().startsWith('wahrheit:') || 
-               section.toLowerCase().startsWith('truth :') || 
-               section.toLowerCase().startsWith('wahrheit :')) {
+      } else if (
+        section.toLowerCase().startsWith('truth:') ||
+        section.toLowerCase().startsWith('wahrheit:') ||
+        section.toLowerCase().startsWith('truth :') ||
+        section.toLowerCase().startsWith('wahrheit :')
+      ) {
         currentSection = 'truth';
         parsedResult.truthPercentage = section.split(':')[1].trim();
-      } 
-      else if (section.toLowerCase().startsWith('fact check:') || 
-               section.toLowerCase().startsWith('faktencheck:') || 
-               section.toLowerCase().startsWith('fact check :') || 
-               section.toLowerCase().startsWith('faktencheck :')) {
+      } else if (
+        section.toLowerCase().startsWith('fact check:') ||
+        section.toLowerCase().startsWith('faktencheck:') ||
+        section.toLowerCase().startsWith('fact check :') ||
+        section.toLowerCase().startsWith('faktencheck :')
+      ) {
         currentSection = 'factCheck';
         parsedResult.factCheck = section.split(':').slice(1).join(':').trim();
-      } 
-      else if (section.toLowerCase().startsWith('context:') || 
-               section.toLowerCase().startsWith('kontext:') || 
-               section.toLowerCase().startsWith('context :') || 
-               section.toLowerCase().startsWith('kontext :')) {
+      } else if (
+        section.toLowerCase().startsWith('context:') ||
+        section.toLowerCase().startsWith('kontext:') ||
+        section.toLowerCase().startsWith('context :') ||
+        section.toLowerCase().startsWith('kontext :')
+      ) {
         currentSection = 'context';
         parsedResult.context = section.split(':').slice(1).join(':').trim();
-      } 
-      else if (currentSection === 'factCheck') {
+      } else if (currentSection === 'factCheck') {
         parsedResult.factCheck += ' ' + section.trim();
       } else if (currentSection === 'context') {
         parsedResult.context += ' ' + section.trim();
@@ -364,10 +408,10 @@
         urlMatches.forEach((match, index) => {
           const urlParts = match.match(/\[([^\]]+)\]\(([^)]+)\)/);
           if (urlParts && urlParts.length >= 3) {
-            parsedResult.sources.push({ 
-              index: index + 1, 
-              title: urlParts[1], 
-              url: urlParts[2] 
+            parsedResult.sources.push({
+              index: index + 1,
+              title: urlParts[1],
+              url: urlParts[2],
             });
           }
         });
@@ -375,8 +419,14 @@
     }
 
     // Replace source references with hyperlinks
-    parsedResult.factCheck = replaceSourceReferences(parsedResult.factCheck, parsedResult.sources);
-    parsedResult.context = replaceSourceReferences(parsedResult.context, parsedResult.sources);
+    parsedResult.factCheck = replaceSourceReferences(
+      parsedResult.factCheck,
+      parsedResult.sources
+    );
+    parsedResult.context = replaceSourceReferences(
+      parsedResult.context,
+      parsedResult.sources
+    );
 
     return parsedResult;
   }
@@ -389,9 +439,12 @@
 
     // Replace references like [1], [2], etc. with hyperlinks
     let modifiedText = text;
-    sources.forEach(source => {
+    sources.forEach((source) => {
       const regex = new RegExp(`\\[${source.index}\\]`, 'g');
-      modifiedText = modifiedText.replace(regex, `<a href="${source.url}" target="_blank">[${source.index}]</a>`);
+      modifiedText = modifiedText.replace(
+        regex,
+        `<a href="${source.url}" target="_blank">[${source.index}]</a>`
+      );
     });
 
     return modifiedText;
@@ -402,10 +455,10 @@
     if (!percentage || percentage === 'N/A') {
       return '#888888'; // Gray for unknown
     }
-    
+
     // Extract numeric value from percentage string
     let numericValue;
-    
+
     if (typeof percentage === 'string') {
       // Try to extract a number from the string
       const matches = percentage.match(/(\d+(?:\.\d+)?)/);
@@ -414,11 +467,20 @@
       } else {
         // Handle text-based percentages
         const lowerPercentage = percentage.toLowerCase();
-        if (lowerPercentage.includes('high') || lowerPercentage.includes('hoch')) {
+        if (
+          lowerPercentage.includes('high') ||
+          lowerPercentage.includes('hoch')
+        ) {
           numericValue = 85;
-        } else if (lowerPercentage.includes('medium') || lowerPercentage.includes('mittel')) {
+        } else if (
+          lowerPercentage.includes('medium') ||
+          lowerPercentage.includes('mittel')
+        ) {
           numericValue = 50;
-        } else if (lowerPercentage.includes('low') || lowerPercentage.includes('niedrig')) {
+        } else if (
+          lowerPercentage.includes('low') ||
+          lowerPercentage.includes('niedrig')
+        ) {
           numericValue = 25;
         } else {
           return '#888888'; // Gray for unknown format
@@ -429,10 +491,10 @@
     } else {
       return '#888888'; // Gray for unknown type
     }
-    
+
     // Ensure the value is between 0 and 100
     numericValue = Math.max(0, Math.min(100, numericValue));
-    
+
     // Determine color based on percentage - using the logo colors
     if (numericValue >= 80) {
       return '#4CAF50'; // Green for high truth
@@ -452,14 +514,14 @@
     if (!factCheckBox) {
       factCheckBox = createFactCheckBox();
     }
-    
+
     // Store the last selection for retry functionality
     const lastSelection = window.getSelection().toString();
-    
+
     // Determine if this is an API key related error
     const isApiKeyError = message.toLowerCase().includes('api key');
     const isTimeoutError = message.toLowerCase().includes('timed out');
-    
+
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
         <h2>Fact Checker</h2>
@@ -468,7 +530,9 @@
       <div class="error-container">
         <h3 class="error-title">Fehler</h3>
         <p class="error-message">${message}</p>
-        ${isApiKeyError ? `
+        ${
+          isApiKeyError
+            ? `
           <div class="error-help">
             <p>So beheben Sie dieses Problem:</p>
             <ol>
@@ -478,7 +542,9 @@
             </ol>
             <p>Benötigen Sie einen API-Schlüssel? <a href="https://www.perplexity.ai/settings/api" target="_blank">Holen Sie sich einen von Perplexity</a></p>
           </div>
-        ` : isTimeoutError ? `
+        `
+            : isTimeoutError
+              ? `
           <div class="error-help">
             <p>Die Anfrage hat zu lange gedauert (über 2 Minuten). Mögliche Gründe:</p>
             <ul>
@@ -489,26 +555,28 @@
             <p>Bitte versuchen Sie es mit einem kürzeren Text oder zu einem späteren Zeitpunkt erneut.</p>
             <button id="retry-fact-check" class="retry-button">Erneut versuchen</button>
           </div>
-        ` : `
+        `
+              : `
           <div class="error-help">
             <p>Bitte versuchen Sie es später erneut oder prüfen Sie den Abschnitt zur Fehlerbehebung in der Erweiterungsdokumentation.</p>
             <button id="retry-fact-check" class="retry-button">Erneut versuchen</button>
           </div>
-        `}
+        `
+        }
       </div>
     `;
-    
+
     factCheckBox.style.display = 'block';
     addCloseButtonListener();
-    
+
     // Add retry button listener if present
     const retryButton = document.getElementById('retry-fact-check');
     if (retryButton && lastSelection) {
-      retryButton.addEventListener('click', function() {
+      retryButton.addEventListener('click', function () {
         chrome.runtime.sendMessage({
-          action: "retryFactCheck",
+          action: 'retryFactCheck',
           text: lastSelection,
-          url: window.location.href
+          url: window.location.href,
         });
         showLoading();
       });
@@ -518,11 +586,11 @@
   function retryFactCheck(text, url) {
     // Stoppe einen eventuell laufenden Timer
     stopTimer();
-    
+
     chrome.runtime.sendMessage({
-      action: "retryFactCheck",
+      action: 'retryFactCheck',
       text: text,
-      url: url
+      url: url,
     });
     showLoading();
   }
@@ -531,11 +599,11 @@
     const closeButton = document.getElementById('close-fact-check');
     if (closeButton) {
       console.log('Close button found, adding event listener');
-      
+
       // Entferne alle existierenden Event-Listener
       const newCloseButton = closeButton.cloneNode(true);
       closeButton.parentNode.replaceChild(newCloseButton, closeButton);
-      
+
       // Füge den neuen Event-Listener hinzu
       newCloseButton.addEventListener('click', (e) => {
         console.log('Close button clicked');
@@ -547,7 +615,7 @@
         // Stoppe einen eventuell laufenden Timer
         stopTimer();
       });
-      
+
       // Verhindere, dass der Schließen-Button das Drag & Drop auslöst
       newCloseButton.addEventListener('mousedown', (e) => {
         e.preventDefault();
@@ -570,7 +638,7 @@ Fact Check: ${result.factCheck}
 Context: ${result.context}
 
 Sources:
-${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}`).join('\n')}
+${result.sources.map((source) => `${source.index}. ${source.title} - ${source.url}`).join('\n')}
         `;
         navigator.clipboard.writeText(textToCopy).then(() => {
           copyButton.textContent = 'Copied!';
@@ -583,7 +651,10 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
   }
 
   function isDarkMode() {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return (
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
   }
 
   function makeDraggableAndResizable(element) {
@@ -710,8 +781,6 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
 
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Satoshi:wght@400;700&display=swap');
-
     #perplexity-fact-check-box {
       position: fixed;
       top: 20px;
@@ -764,7 +833,8 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       font-size: 18px;
       color: #FFC107 !important;
     }
-    #perplexity-fact-check-box p, #perplexity-fact-check-box li {
+    #perplexity-fact-check-box p, 
+    #perplexity-fact-check-box li {
       font-size: 14px;
       line-height: 1.4;
       color: #cccccc !important;
@@ -777,7 +847,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       text-decoration: underline;
       color: #e6af06 !important;
     }
-    #close-fact-check {
+    #perplexity-fact-check-box #close-fact-check {
       background: none;
       border: none;
       font-size: 20px;
@@ -787,7 +857,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       top: 10px;
       right: 10px;
     }
-    #copy-result {
+    #perplexity-fact-check-box #copy-result {
       display: block;
       margin-top: 15px;
       padding: 5px 10px;
@@ -799,10 +869,10 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       font-size: 14px;
       transition: background-color 0.3s;
     }
-    #copy-result:hover {
+    #perplexity-fact-check-box #copy-result:hover {
       background-color: #45a049;
     }
-    .loader {
+    #perplexity-fact-check-box .loader {
       border: 5px solid #2a2f3b;
       border-top: 5px solid #FFC107;
       border-right: 5px solid #F44336;
@@ -810,47 +880,47 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       border-radius: 50%;
       width: 50px;
       height: 50px;
-      animation: spin 1s linear infinite;
+      animation: perplexity-fact-check-spin 1s linear infinite;
       margin: 20px auto;
     }
-    @keyframes spin {
+    @keyframes perplexity-fact-check-spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .error-container {
+    #perplexity-fact-check-box .error-container {
       padding: 20px;
       background-color: #2a2f3b;
       border-left: 4px solid #F44336;
       margin-bottom: 15px;
       border-radius: 5px;
     }
-    .error-title {
+    #perplexity-fact-check-box .error-title {
       font-size: 18px;
       margin-top: 0;
       color: #F44336 !important;
     }
-    .error-message {
+    #perplexity-fact-check-box .error-message {
       font-size: 14px;
       margin-bottom: 20px;
       color: #F44336 !important;
       font-weight: bold;
     }
-    .error-help {
+    #perplexity-fact-check-box .error-help {
       font-size: 14px;
       background-color: #1a1f2b;
       padding: 10px;
       border-radius: 4px;
       border: 1px solid #3a3f4b;
     }
-    .error-help a {
+    #perplexity-fact-check-box .error-help a {
       color: #FFC107 !important;
       text-decoration: none;
     }
-    .error-help a:hover {
+    #perplexity-fact-check-box .error-help a:hover {
       text-decoration: underline;
       color: #e6af06 !important;
     }
-    .retry-button {
+    #perplexity-fact-check-box .retry-button {
       background-color: #4CAF50;
       color: white !important;
       border: none;
@@ -862,26 +932,24 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       display: block;
       transition: background-color 0.3s;
     }
-    
-    .retry-button:hover {
+    #perplexity-fact-check-box .retry-button:hover {
       background-color: #45a049;
     }
-    
-    .loading-tip {
+    #perplexity-fact-check-box .loading-tip {
       font-size: 12px;
       color: #cccccc !important;
       font-style: italic;
       margin-top: 10px;
       text-align: center;
     }
-    .timer-text {
+    #perplexity-fact-check-box .timer-text {
       font-size: 14px;
       text-align: center;
       margin: 10px 0;
       font-weight: bold;
       color: #FFC107 !important;
     }
-    .abort-button {
+    #perplexity-fact-check-box .abort-button {
       background-color: #F44336;
       color: white !important;
       border: none;
@@ -895,7 +963,7 @@ ${result.sources.map(source => `${source.index}. ${source.title} - ${source.url}
       text-align: center;
       transition: background-color 0.3s;
     }
-    .abort-button:hover {
+    #perplexity-fact-check-box .abort-button:hover {
       background-color: #d32f2f;
     }
   `;
