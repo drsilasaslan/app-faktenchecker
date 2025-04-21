@@ -1,12 +1,15 @@
 body {
   width: 350px;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
-  background-color: #1a1f2b;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #001A33;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .header {
@@ -15,107 +18,164 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
+  padding: 15px 0;
+  position: relative;
+  background: radial-gradient(circle at center, #002952 0%, #001A33 70%);
+  border-radius: 10px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .logo-container {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.05);
 }
 
 .logo {
-  width: 48px;
-  height: 48px;
+  width: 80px;
+  height: 80px;
   margin-bottom: 0;
   z-index: 2;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
 }
 
-.logo-gauge {
-  display: flex;
-  width: 80px;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 5px;
+.logo:hover {
+  filter: drop-shadow(0 6px 10px rgba(34, 197, 94, 0.2));
 }
 
-.gauge-segment {
-  flex: 1;
-  height: 100%;
-}
-
-.gauge-segment.red {
-  background-color: #F44336;
-}
-
-.gauge-segment.yellow {
-  background-color: #FFC107;
-}
-
-.gauge-segment.green {
-  background-color: #4CAF50;
-}
+/* Removed gauge segments as they don't fit with the new design */
 
 h1 {
-  font-size: 20px;
-  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
   color: #ffffff;
   text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+h1::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  background-color: #22C55E;
+  margin: 8px auto 0;
+  border-radius: 2px;
 }
 
 #apiKeySection {
-  background-color: #2a2f3b;
-  border-radius: 15px;
+  background-color: #002244;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   max-width: 350px;
-  border: 1px solid #3a3f4b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#apiKeySection:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 label {
   display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
+  margin-bottom: 12px;
+  font-weight: 500;
   text-align: center;
   color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 0.3px;
 }
 
 input[type="text"] {
   width: 100%;
   max-width: 300px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #3a3f4b;
-  border-radius: 5px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   box-sizing: border-box;
   text-align: center;
-  background-color: #1a1f2b;
+  background-color: rgba(0, 10, 20, 0.3);
   color: #ffffff;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #22C55E;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button {
   width: 100%;
   max-width: 300px;
-  padding: 10px;
-  background-color: #4CAF50;
+  padding: 12px 15px;
+  background-color: #22C55E;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
   text-align: center;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2);
+  letter-spacing: 0.3px;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+button:hover::after {
+  opacity: 1;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25), 0 4px 6px rgba(34, 197, 94, 0.2);
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #1ea750;
+  box-shadow: 0 6px 10px rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
 }
 
 .button-group {
@@ -124,36 +184,43 @@ button:hover {
   width: 100%;
   max-width: 300px;
   margin-bottom: 15px;
+  gap: 12px;
 }
 
 .button-group button {
   width: 48%;
   max-width: none;
+  flex: 1;
 }
 
 .button-group button:first-child {
-  background-color: #4CAF50;
+  background-color: #22C55E;
 }
 
 .button-group button:first-child:hover {
-  background-color: #45a049;
+  background-color: #1ea750;
 }
 
 .button-group button:last-child {
-  background-color: #FFC107;
+  background-color: #0073e6;
+  box-shadow: 0 4px 6px rgba(0, 115, 230, 0.2);
 }
 
 .button-group button:last-child:hover {
-  background-color: #e6af06;
+  background-color: #0062c4;
+  box-shadow: 0 6px 10px rgba(0, 115, 230, 0.3);
 }
 
 .api-info {
   width: 100%;
   max-width: 300px;
-  margin-top: 10px;
-  font-size: 12px;
-  color: #cccccc;
+  margin-top: 15px;
+  font-size: 13px;
+  color: #e6e6e6;
   text-align: center;
+  background-color: rgba(0, 10, 20, 0.3);
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .api-info p {
@@ -161,106 +228,206 @@ button:hover {
 }
 
 .api-info a {
-  color: #FFC107;
+  color: #22C55E;
   text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 1px dashed rgba(34, 197, 94, 0.3);
+  padding-bottom: 1px;
 }
 
 .api-info a:hover {
-  text-decoration: underline;
-  color: #e6af06;
+  color: #1ea750;
+  border-bottom-style: solid;
+}
+
+.settings-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.settings-section button {
+  background-color: #003366;
+  max-width: 200px;
+  box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-section button::before {
+  content: '⚙️';
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.settings-section button:hover {
+  background-color: #00264d;
+  box-shadow: 0 6px 10px rgba(0, 51, 102, 0.3);
 }
 
 .instructions {
-  background-color: #2a2f3b;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #002244;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 350px;
   margin-top: 10px;
-  border: 1px solid #3a3f4b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.instructions::before {
+  content: '💡';
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  font-size: 20px;
+  background: #22C55E;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .instructions h3 {
-  font-size: 16px;
+  font-size: 18px;
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #ffffff;
-  text-align: center;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+  padding-bottom: 8px;
 }
 
 .instructions ol {
   margin: 0;
   padding-left: 25px;
-  color: #cccccc;
+  color: #e6e6e6;
 }
 
 .instructions li {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 5px;
+}
+
+.instructions li::marker {
+  color: #22C55E;
+  font-weight: bold;
 }
 
 #status {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
   font-style: italic;
   text-align: center;
   min-height: 20px;
-  color: #cccccc;
+  color: #e6e6e6;
+  font-size: 14px;
+  padding: 8px 15px;
+  border-radius: 30px;
+  background-color: transparent;
+  transition: all 0.3s ease;
 }
 
 #status.success {
-  color: #4CAF50;
+  color: #ffffff;
+  background-color: rgba(34, 197, 94, 0.15);
+  border-left: 3px solid #22C55E;
+  border-radius: 3px;
+  font-style: normal;
+  font-weight: 500;
 }
 
 #status.error {
-  color: #f44336;
+  color: #ffffff;
+  background-color: rgba(239, 68, 68, 0.15);
+  border-left: 3px solid #EF4444;
+  border-radius: 3px;
+  font-style: normal;
+  font-weight: 500;
 }
 
-#apiKeySection:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
+/* Already handled in the new #apiKeySection styles */
 
 /* Animation for button pulse */
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1); box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2); }
+  50% { transform: scale(1.05); box-shadow: 0 8px 15px rgba(34, 197, 94, 0.3); }
+  100% { transform: scale(1); box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2); }
 }
 
 .pulse-animation {
-  animation: pulse 0.5s ease-in-out;
+  animation: pulse 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .success-pulse {
-  animation: pulse 0.5s ease-in-out;
-  background-color: #4CAF50 !important;
+  animation: pulse 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  background-color: #22C55E !important;
 }
 
 .error-pulse {
-  animation: pulse 0.5s ease-in-out;
-  background-color: #F44336 !important;
+  animation: pulse 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  background-color: #EF4444 !important;
 }
 
 /* Loading spinner */
 .loading-spinner {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 5px;
+  animation: spin 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+  margin-right: 8px;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Truth percentage gauge styling */
+/* Add extra styles for customized back button */
+#backButton {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  margin-top: 15px;
+  font-weight: normal;
+  box-shadow: none;
+  max-width: 120px;
+  transition: all 0.2s ease;
+}
+
+#backButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#backButton::before {
+  content: '←';
+  margin-right: 5px;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+#backButton:hover::before {
+  transform: translateX(-3px);
+}
+
+/* Truth percentage gauge styling - modernized */
 #truth-percentage {
   position: relative;
   padding-bottom: 15px;
+  margin-top: 5px;
 }
 
 #truth-percentage::after {
@@ -269,8 +436,9 @@ button:hover {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 5px;
-  background: linear-gradient(to right, #F44336 0%, #FFC107 50%, #4CAF50 100%);
-  border-radius: 5px;
+  width: 70%;
+  height: 6px;
+  background: linear-gradient(to right, #EF4444 0%, #F59E0B 50%, #22C55E 100%);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
