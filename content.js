@@ -594,16 +594,17 @@
   }
 
   function addCloseButtonListener() {
-    const closeButton = document.getElementById('close-fact-check');
+    // Search for the button *inside* the factCheckBox element
+    const closeButton = factCheckBox.querySelector('#close-fact-check'); 
     if (closeButton) {
       console.log('Close button found, adding event listener');
 
-      // Entferne alle existierenden Event-Listener
-      const newCloseButton = closeButton.cloneNode(true);
-      closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+      // Entferne alle existierenden Event-Listener - No longer needed, setting innerHTML removes old elements/listeners
+      // const newCloseButton = closeButton.cloneNode(true);
+      // closeButton.parentNode.replaceChild(newCloseButton, closeButton);
 
-      // Füge den neuen Event-Listener hinzu
-      newCloseButton.addEventListener('click', (e) => {
+      // Füge den neuen Event-Listener direkt hinzu
+      closeButton.addEventListener('click', (e) => {
         console.log('Close button clicked');
         e.preventDefault();
         e.stopPropagation();
@@ -611,16 +612,16 @@
           factCheckBox.style.display = 'none';
         }
         // Stoppe einen eventuell laufenden Timer
-        stopTimer();
+        stopTimer(); 
       });
 
       // Verhindere, dass der Schließen-Button das Drag & Drop auslöst
-      newCloseButton.addEventListener('mousedown', (e) => {
+      closeButton.addEventListener('mousedown', (e) => {
         e.preventDefault();
         e.stopPropagation();
       });
     } else {
-      console.log('Close button not found');
+      console.log('Close button not found within factCheckBox'); // Updated log message
     }
   }
 
