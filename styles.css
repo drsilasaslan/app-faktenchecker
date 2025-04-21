@@ -430,6 +430,15 @@ button:hover {
   margin-top: 5px;
 }
 
+#apiKeySection button,
+#backButton {
+  width: 90%;
+  max-width: 270px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  margin-bottom: 8px;
+}
+
 #truth-percentage::after {
   content: '';
   position: absolute;
