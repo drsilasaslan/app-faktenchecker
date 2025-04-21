@@ -84,9 +84,9 @@
     }
   }
 
-  // Funktion zum Abbrechen der Fact-Check-Anfrage
+  // Funktion zum Abbrechen der Faktencheck-Anfrage
   function abortFactCheck() {
-    console.log('Aborting fact check...');
+    console.log('Aborting Faktencheck...');
 
     // Stoppe den Timer
     stopTimer();
@@ -96,7 +96,7 @@
       console.log('Abort response:', response);
 
       // Zeige eine Meldung an, dass die Anfrage abgebrochen wurde
-      showError('Die Fact-Check-Anfrage wurde abgebrochen.');
+      showError('Die Faktencheck-Anfrage wurde abgebrochen.');
     });
   }
 
@@ -106,10 +106,10 @@
     }
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
-        <h2>Fact Checker</h2>
+        <h2>Faktenchecker</h2>
         <button id="close-fact-check">×</button>
       </div>
-      <p>Fact-checking in progress... This may take up to 2 minutes.</p>
+      <p>Faktencheck in progress... This may take up to 2 minutes.</p>
       <div class="loader"></div>
       <p class="timer-text">Verbleibende Zeit: 2:00</p>
       <p class="loading-tip">Tipp: Längere Texte können mehr Zeit in Anspruch nehmen.</p>
@@ -126,7 +126,7 @@
   }
 
   function showFactCheckResult(result) {
-    console.log('Showing fact check result:', result);
+    console.log('Showing Faktencheck result:', result);
     if (!factCheckBox) {
       factCheckBox = createFactCheckBox();
     }
@@ -143,11 +143,11 @@
   }
 
   function updateFactCheckBox(result) {
-    console.log('Updating fact check box with:', result);
+    console.log('Updating Faktencheck box with:', result);
 
     // Set default values for missing sections
     const truthPercentage = result.truthPercentage || 'N/A';
-    const factCheck = result.factCheck || 'No fact check provided.';
+    const factCheck = result.factCheck || 'No Faktencheck provided.';
     const context = result.context || 'No context provided.';
     const sources = result.sources || [];
 
@@ -168,11 +168,11 @@
 
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
-        <h2>Fact Checker</h2>
+        <h2>Faktenchecker</h2>
         <button id="close-fact-check">×</button>
       </div>
       <h3 id="truth-percentage">Truth Percentage: <span style="color: ${truthColor} !important;">${truthPercentage}</span></h3>
-      <h4>Fact Check:</h4>
+      <h4>Faktencheck:</h4>
       <p>${factCheck}</p>
       <h4>Context:</h4>
       <p>${context}</p>
@@ -210,7 +210,7 @@
     // Initialize the parsed result with default values
     const parsedResult = {
       truthPercentage: 'N/A',
-      factCheck: 'No fact check provided.',
+      factCheck: 'No Faktencheck provided.',
       context: 'No context provided.',
       sources: [],
     };
@@ -218,7 +218,7 @@
     // Extract sections using regex patterns for more reliable parsing
     // Sources section
     const sourcesMatch = cleanResult.match(
-      /Sources:[\s\S]*?(?=Truth:|Fact Check:|Context:|$)/i
+      /Sources:[\s\S]*?(?=Truth:|Faktencheck:|Context:|$)/i
     );
     if (sourcesMatch) {
       const sourcesText = sourcesMatch[0];
@@ -246,7 +246,7 @@
 
     // Truth percentage section
     const truthMatch = cleanResult.match(
-      /Truth:[\s\S]*?(?=Fact Check:|Context:|Sources:|$)/i
+      /Truth:[\s\S]*?(?=Faktencheck:|Context:|Sources:|$)/i
     );
     if (truthMatch) {
       const truthText = truthMatch[0].trim();
@@ -259,16 +259,16 @@
       }
     }
 
-    // Fact Check section
+    // Faktencheck section
     const factCheckMatch = cleanResult.match(
-      /Fact Check:[\s\S]*?(?=Context:|Truth:|Sources:|$)/i
+      /Faktencheck:[\s\S]*?(?=Context:|Truth:|Sources:|$)/i
     );
     if (factCheckMatch) {
       const factCheckText = factCheckMatch[0].trim();
-      console.log('Fact Check section:', factCheckText);
+      console.log('Faktencheck section:', factCheckText);
 
-      // Extract the fact check content
-      const contentMatch = factCheckText.match(/Fact Check:\s*([\s\S]*)/i);
+      // Extract the Faktencheck content
+      const contentMatch = factCheckText.match(/Faktencheck:\s*([\s\S]*)/i);
       if (contentMatch && contentMatch[1]) {
         parsedResult.factCheck = contentMatch[1].trim();
       }
@@ -276,7 +276,7 @@
 
     // Context section
     const contextMatch = cleanResult.match(
-      /Context:[\s\S]*?(?=Fact Check:|Truth:|Sources:|$)/i
+      /Context:[\s\S]*?(?=Faktencheck:|Truth:|Sources:|$)/i
     );
     if (contextMatch) {
       const contextText = contextMatch[0].trim();
@@ -293,17 +293,17 @@
     if (
       parsedResult.sources.length === 0 &&
       parsedResult.truthPercentage === 'N/A' &&
-      parsedResult.factCheck === 'No fact check provided.' &&
+      parsedResult.factCheck === 'No Faktencheck provided.' &&
       parsedResult.context === 'No context provided.'
     ) {
       console.log('Regex parsing failed, falling back to original method');
       return parseFactCheckResultOriginal(cleanResult);
     }
 
-    // If we have sources but no truth percentage, try to extract it from the fact check or context
+    // If we have sources but no truth percentage, try to extract it from the Faktencheck or context
     if (
       parsedResult.truthPercentage === 'N/A' &&
-      (parsedResult.factCheck !== 'No fact check provided.' ||
+      (parsedResult.factCheck !== 'No Faktencheck provided.' ||
         parsedResult.context !== 'No context provided.')
     ) {
       const percentageMatch = cleanResult.match(
@@ -338,7 +338,7 @@
     const sections = result.split('\n\n');
     const parsedResult = {
       truthPercentage: 'N/A',
-      factCheck: 'No fact check provided.',
+      factCheck: 'No Faktencheck provided.',
       context: 'No context provided.',
       sources: [],
     };
@@ -379,9 +379,7 @@
         currentSection = 'truth';
         parsedResult.truthPercentage = section.split(':')[1].trim();
       } else if (
-        section.toLowerCase().startsWith('fact check:') ||
         section.toLowerCase().startsWith('faktencheck:') ||
-        section.toLowerCase().startsWith('fact check :') ||
         section.toLowerCase().startsWith('faktencheck :')
       ) {
         currentSection = 'factCheck';
@@ -524,7 +522,7 @@
 
     factCheckBox.innerHTML = `
       <div class="fact-check-header">
-        <h2>Fact Checker</h2>
+        <h2>Faktenchecker</h2>
         <button id="close-fact-check">×</button>
       </div>
       <div class="error-container">
@@ -536,7 +534,7 @@
           <div class="error-help">
             <p>So beheben Sie dieses Problem:</p>
             <ol>
-              <li>Klicken Sie auf das Fact Checker-Symbol in Ihrer Symbolleiste</li>
+              <li>Klicken Sie auf das Faktenchecker-Symbol in Ihrer Symbolleiste</li>
               <li>Geben Sie Ihren Perplexity API-Schlüssel ein</li>
               <li>Klicken Sie auf "Speichern" und versuchen Sie es erneut</li>
             </ol>

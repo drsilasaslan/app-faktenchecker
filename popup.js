@@ -17,21 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Basic validation for API key format
     if (!apiKey) {
-      status.textContent = 'Please enter a valid API Key.';
+      status.textContent = 'Please enter a valid API Key for Faktenchecker.';
       status.className = 'error';
       return;
     }
     
-    // Check if the API key has a reasonable length
+    // Faktenchecker if the API key has a reasonable length
     if (apiKey.length < 20) {
-      status.textContent = 'API Key appears to be too short. Please check your Perplexity API key.';
+      status.textContent = 'API Key appears to be too short. Please check your Perplexity API key for Faktenchecker.';
       status.className = 'error';
       return;
     }
 
     // Save the API key
     chrome.storage.sync.set({ apiKey }, () => {
-      status.textContent = 'API Key saved!';
+      status.textContent = 'API Key saved for Faktenchecker!';
       status.className = 'success';
       
       // Visual feedback - button pulse animation
@@ -53,12 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const apiKey = apiKeyInput.value.trim();
       
       if (!apiKey) {
-        status.textContent = 'Please enter an API Key to test.';
+        status.textContent = 'Please enter an API Key to test for Faktenchecker.';
         status.className = 'error';
         return;
       }
       
-      status.textContent = 'Testing API Key...';
+      status.textContent = 'Testing API Key for Faktenchecker...';
       status.className = '';
       
       // Show loading indicator on the button
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         testApiButton.disabled = false;
         
         if (response.ok) {
-          status.textContent = 'API Key is valid!';
+          status.textContent = 'API Key is valid for Faktenchecker!';
           status.className = 'success';
           
           // Visual feedback - button pulse animation
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           const errorData = await response.json().catch(() => null);
           if (response.status === 401) {
-            status.textContent = 'Invalid API Key. Please check and try again.';
+            status.textContent = 'Invalid API Key. Please check and try again for Faktenchecker.';
           } else if (response.status === 429) {
             status.textContent = 'API rate limit exceeded or insufficient credits.';
           } else {

@@ -1,4 +1,4 @@
-# Faktencheck Chrome Extension
+# Faktenchecker Chrome Extension
 
 ## Overview
 

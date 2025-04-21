@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "factCheckAI",
-    title: "Fact check with AI",
+    title: "Faktenchecker with AI",
     contexts: ["selection"]
   });
 });
@@ -125,7 +125,7 @@ Fact Check: [your fact check with inline source references, e.g. [1], [2], etc.]
 Context: [your context with inline source references, e.g. [1], [2], etc.]
 
 Do not deviate from this format. Do not add any additional sections or explanations. If you cannot find enough reliable sources to fact-check the statement, say so explicitly in the Fact Check section and explain why. If a claim is widely accepted as common knowledge, state this and provide general reference sources.` },
-        { role: 'user', content: `Fact check the following selected text: "${text}"\n\nBroader context from the page:\n${contextText}\n\nPage URL: ${url}` }
+        { role: 'user', content: `Faktenchecker the following selected text: "${text}"\n\nBroader context from the page:\n${contextText}\n\nPage URL: ${url}` }
       ],
       max_tokens: 2048,
       temperature: 0.1,
