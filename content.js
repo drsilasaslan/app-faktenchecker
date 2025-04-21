@@ -783,40 +783,48 @@ ${result.sources.map((source) => `${source.index}. ${source.title} - ${source.ur
       position: fixed;
       top: 20px;
       right: 20px;
-      width: 300px;
-      height: 400px;
-      min-width: 200px;
+      width: 320px;
+      height: 450px;
+      min-width: 280px;
       min-height: 200px;
       max-width: 80vw;
       max-height: 80vh;
       overflow-y: auto;
-      background-color: #1a1f2b;
+      background-color: #001A33;
       color: white !important;
-      border: 1px solid #3a3f4b;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       z-index: 9999;
-      font-family: 'Satoshi', sans-serif !important;
+      font-family: 'Segoe UI', 'Roboto', sans-serif !important;
     }
     #perplexity-fact-check-box * {
-      font-family: 'Satoshi', sans-serif !important;
+      font-family: 'Segoe UI', 'Roboto', sans-serif !important;
       color: white !important;
     }
     #perplexity-fact-check-box .fact-check-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #3a3f4b;
-      padding-bottom: 10px;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 15px;
+      background: radial-gradient(circle at center, #002952 0%, #001A33 70%);
+      margin: -20px -20px 20px -20px;
+      padding: 20px;
+      border-radius: 12px 12px 0 0;
     }
     #perplexity-fact-check-box h2 {
       margin: 0;
       text-align: center;
       width: 100%;
       font-size: 24px;
+      font-weight: 600;
       color: white !important;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     #perplexity-fact-check-box h3 {
       text-align: center;
@@ -824,62 +832,122 @@ ${result.sources.map((source) => `${source.index}. ${source.title} - ${source.ur
       margin-top: 0;
       margin-bottom: 25px;
       color: white !important;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    #perplexity-fact-check-box h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 6px;
+      background: linear-gradient(to right, #EF4444 0%, #F59E0B 50%, #22C55E 100%);
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     #perplexity-fact-check-box h4 {
       margin-top: 20px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-size: 18px;
-      color: #FFC107 !important;
+      color: #22C55E !important;
+      font-weight: 600;
+      border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+      padding-bottom: 8px;
+      display: inline-block;
     }
     #perplexity-fact-check-box p, 
     #perplexity-fact-check-box li {
       font-size: 14px;
-      line-height: 1.4;
-      color: #cccccc !important;
+      line-height: 1.5;
+      color: #e6e6e6 !important;
+      margin-bottom: 10px;
     }
     #perplexity-fact-check-box a {
-      color: #FFC107 !important;
+      color: #22C55E !important;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-bottom: 1px dashed rgba(34, 197, 94, 0.3);
+      padding-bottom: 1px;
     }
     #perplexity-fact-check-box a:hover {
-      text-decoration: underline;
-      color: #e6af06 !important;
+      color: #1ea750 !important;
+      border-bottom-style: solid;
     }
     #perplexity-fact-check-box #close-fact-check {
       background: none;
       border: none;
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
       color: white !important;
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    #perplexity-fact-check-box #close-fact-check:hover {
+      background-color: rgba(255, 255, 255, 0.1);
     }
     #perplexity-fact-check-box #copy-result {
       display: block;
-      margin-top: 15px;
-      padding: 5px 10px;
-      background-color: #4CAF50;
+      margin: 20px auto 5px auto;
+      padding: 10px 15px;
+      background-color: #22C55E;
       color: white !important;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      transition: background-color 0.3s;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2);
+      max-width: 200px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    #perplexity-fact-check-box #copy-result::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #perplexity-fact-check-box #copy-result:hover::after {
+      opacity: 1;
     }
     #perplexity-fact-check-box #copy-result:hover {
-      background-color: #45a049;
+      background-color: #1ea750;
+      box-shadow: 0 6px 10px rgba(34, 197, 94, 0.3);
+      transform: translateY(-1px);
+    }
+    #perplexity-fact-check-box #copy-result:active {
+      transform: translateY(1px);
     }
     #perplexity-fact-check-box .loader {
-      border: 5px solid #2a2f3b;
-      border-top: 5px solid #FFC107;
-      border-right: 5px solid #F44336;
-      border-bottom: 5px solid #4CAF50;
+      border: 5px solid rgba(0, 10, 20, 0.3);
+      border-top: 5px solid #22C55E;
+      border-right: 5px solid #0073e6;
+      border-bottom: 5px solid #22C55E;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: perplexity-fact-check-spin 1s linear infinite;
-      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      animation: perplexity-fact-check-spin 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+      margin: 30px auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
     @keyframes perplexity-fact-check-spin {
       0% { transform: rotate(0deg); }
@@ -887,82 +955,143 @@ ${result.sources.map((source) => `${source.index}. ${source.title} - ${source.ur
     }
     #perplexity-fact-check-box .error-container {
       padding: 20px;
-      background-color: #2a2f3b;
-      border-left: 4px solid #F44336;
+      background-color: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid #EF4444;
       margin-bottom: 15px;
-      border-radius: 5px;
+      border-radius: 8px;
     }
     #perplexity-fact-check-box .error-title {
       font-size: 18px;
       margin-top: 0;
-      color: #F44336 !important;
+      color: #EF4444 !important;
+      font-weight: 600;
     }
     #perplexity-fact-check-box .error-message {
-      font-size: 14px;
+      font-size: 15px;
       margin-bottom: 20px;
-      color: #F44336 !important;
-      font-weight: bold;
+      color: #ffffff !important;
+      font-weight: 500;
     }
     #perplexity-fact-check-box .error-help {
       font-size: 14px;
-      background-color: #1a1f2b;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #3a3f4b;
+      background-color: rgba(0, 10, 20, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      line-height: 1.5;
     }
     #perplexity-fact-check-box .error-help a {
-      color: #FFC107 !important;
+      color: #22C55E !important;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-bottom: 1px dashed rgba(34, 197, 94, 0.3);
+      padding-bottom: 1px;
     }
     #perplexity-fact-check-box .error-help a:hover {
-      text-decoration: underline;
-      color: #e6af06 !important;
+      color: #1ea750 !important;
+      border-bottom-style: solid;
     }
     #perplexity-fact-check-box .retry-button {
-      background-color: #4CAF50;
+      background-color: #22C55E;
       color: white !important;
       border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
+      padding: 10px 15px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      margin-top: 10px;
+      font-weight: 600;
+      margin: 15px auto 5px auto;
       display: block;
-      transition: background-color 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2);
+      max-width: 200px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    #perplexity-fact-check-box .retry-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #perplexity-fact-check-box .retry-button:hover::after {
+      opacity: 1;
     }
     #perplexity-fact-check-box .retry-button:hover {
-      background-color: #45a049;
+      background-color: #1ea750;
+      box-shadow: 0 6px 10px rgba(34, 197, 94, 0.3);
+      transform: translateY(-1px);
+    }
+    #perplexity-fact-check-box .retry-button:active {
+      transform: translateY(1px);
     }
     #perplexity-fact-check-box .loading-tip {
-      font-size: 12px;
-      color: #cccccc !important;
+      font-size: 13px;
+      color: #e6e6e6 !important;
       font-style: italic;
-      margin-top: 10px;
+      margin-top: 15px;
       text-align: center;
+      background-color: rgba(0, 10, 20, 0.3);
+      padding: 10px 15px;
+      border-radius: 8px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     #perplexity-fact-check-box .timer-text {
-      font-size: 14px;
+      font-size: 16px;
       text-align: center;
-      margin: 10px 0;
-      font-weight: bold;
-      color: #FFC107 !important;
+      margin: 15px 0;
+      font-weight: 600;
+      color: #22C55E !important;
+      letter-spacing: 0.5px;
     }
     #perplexity-fact-check-box .abort-button {
-      background-color: #F44336;
+      background-color: #EF4444;
       color: white !important;
       border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
+      padding: 10px 15px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      margin: 10px auto;
+      font-weight: 600;
+      margin: 15px auto 5px auto;
       display: block;
-      width: 120px;
+      width: 140px;
       text-align: center;
-      transition: background-color 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    #perplexity-fact-check-box .abort-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #perplexity-fact-check-box .abort-button:hover::after {
+      opacity: 1;
     }
     #perplexity-fact-check-box .abort-button:hover {
-      background-color: #d32f2f;
+      background-color: #dc2626;
+      box-shadow: 0 6px 10px rgba(239, 68, 68, 0.3);
+      transform: translateY(-1px);
+    }
+    #perplexity-fact-check-box .abort-button:active {
+      transform: translateY(1px);
     }
   `;
   document.head.appendChild(style);
