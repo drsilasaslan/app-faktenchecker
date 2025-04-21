@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "factCheckAI",
-    title: "Faktenchecker with AI",
+    title: "Mit KI Prüfen",
     contexts: ["selection"]
   });
 });
